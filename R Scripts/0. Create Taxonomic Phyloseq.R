@@ -2,7 +2,7 @@
 #   install.packages("BiocManager")
 # 
 # BiocManager::install("phyloseq")
-
+getwd()
 # load libraries
 library(tidyverse)
 library(phyloseq)
@@ -41,7 +41,7 @@ names(meta_data) = meta_names
 # meta_data = meta_data %>% `names<-`(meta_names) # `<-` commands allow for piping
 
 # Create the phyloseq object
-ps = phyloseq(sample_data(metadata),
+ps = phyloseq(sample_data(meta_data),
               otu_table(counts_formatted, taxa_are_rows = T),
               tax_table(taxonomy_formatted),
               tree)

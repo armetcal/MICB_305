@@ -1,0 +1,195 @@
+---
+title: "Module 12 - Exploring Phyloseq Objects"
+output: html_notebook
+---
+
+In this R Markdown script, we will load in our taxonomy phyloseq object and explore it using a number of R functions.
+
+```{r Load data and libraries}
+library(tidyverse)
+library(phyloseq)
+
+# Remember that .Rmd files set the working directory relative to
+# the SCRIPT's location, not the R project location.
+getwd()
+
+# Load object
+ps = readRDS('../Datasets/phyloseq_taxonomy.rds')
+ps
+```
+
+# 1. Extracting parts of the phyloseq object
+
+```{r Phyloseq sheets}
+View(ps@sam_data)
+View(ps@otu_table)
+View(ps@tax_table)
+View(ps@phy_tree)
+
+# Alternative
+# View(sample_data(ps))
+# View(otu_table(ps))
+# View(tax_table(ps))
+# View(phy_tree(ps))
+
+# Assign to new variables
+metadata = ps@sam_data
+str(metadata) # Not a data frame!
+```
+
+```{r Specific variables}
+# Sample metadata
+ps@sam_data$body.site
+body_site = ps@sam_data$body.site
+str(body_site)
+
+# OTU or Taxonomy table
+ps@tax_table$Genus # Doesn't work - not a data frame
+ps@tax_table[c(1:5),6] # Just the first 5 rows
+ps@tax_table[c(1:5),"Genus"] # Same result
+genus = ps@tax_table[,"Genus"]
+str(genus)
+```
+
+When we use the above code, it doesn't extract the data as a table - it's still in phyloseq format.
+
+```{r Extracting the table}
+# OTU or Taxonomy table ~~~~~
+first_attempt = ps@tax_table %>% as.matrix()
+str(first_attempt) # Doesn't work!
+
+# For these, we can use the @.Data modifier to select the table component of the object.
+taxa_extracted = ps@tax_table@.Data
+str(taxa_extracted)
+
+# Metadata ~~~~~~~~~~~~~~~~~~~
+first_attempt = ps@sam_data %>% as.matrix()
+str(first_attempt) # Removes data types
+
+sec_attempt = ps@sam_data %>% as.data.frame()
+str(sec_attempt) # Doesn't work!
+
+third_attempt = ps@sam_data@.Data
+str(third_attempt) # List format, not table
+
+metadata_extracted = ps@sam_data %>% data.frame() %>% 
+  # Optional - copy the sample names into a column
+  # Useful for analyses
+  mutate(Sample = sample_names(ps))
+  # Alternative formats
+  # mutate(Sample = rownames(.))
+  # mutate(Sample = rownames(.), .before='barcode.sequence')
+  # mutate(Sample = rownames(.), .before=names(.)[1])
+```
+
+```{r Extracting specific features}
+# These commands are part of the phyloseq library
+# They will give you nicely-formatted data!
+
+# Extract all counts for an ASV
+specific_asv_counts = get_sample(ps,'f91c81859bf6eede55eef9c915dd8bab')
+head(specific_asv_counts)
+hist(specific_asv_counts)
+
+# Extract all ASV counts for a sample
+specific_sample_counts = get_taxa(ps,'L1S208')
+head(specific_sample_counts)
+hist(specific_sample_counts)
+
+# Extract all values for a variable
+specific_variable_data = get_variable(ps, 'body.site')
+head(specific_variable_data)
+table(specific_variable_data)
+```
+
+```{r Extract all data into a table}
+# Very helpful for plotting, statistics, etc
+ps_melted = psmelt(ps)
+dim(ps_melted)
+View(ps_melted) # Auto-generated 'Sample' column
+```
+
+# 2. Wrangling phyloseq objects
+
+Basic edits are most easily done directly to the phyloseq object itself. Phyloseq sheets are compatible with most simple wrangling functions, but they cannot be used with more advanced functions like the tidyverse package (mutate(), select(), etc).
+
+```{r Basic editing}
+# Basic math and plotting
+ps@sam_data$day2 = ps@sam_data$day *2
+plot(ps@sam_data$day,ps@sam_data$day2)
+
+ps@otu_table = ps@otu_table + 1 # Add a count of 1 to all values
+
+# Basic formatting
+ps@sam_data$body.site = factor(ps@sam_data$body.site,
+                               levels = c('gut','tongue','left palm','right palm'))
+unique(ps@sam_data$body.site)
+
+# More complicated example: dividing 'day' into groups
+# sapply: apply function to each element in a vector
+ps@sam_data$duration_groups = sapply(ps@sam_data$days.since.experiment.start, 
+                                function(x){
+                                  group = ifelse(is.na(x),NA,
+                                                 # if is.na(x) is FALSE, run this:
+                                                 ifelse(x <90, '<3 months',
+                                                                '3+ months'))
+                                })
+table(ps@sam_data$duration_groups)
+```
+
+Sometimes the wrangling is complicated enough that it's easier to extract the data, edit it, and re-add it to the phyloseq object.
+
+```{r}
+# Extract the data
+original_metadata = data.frame(ps@sam_data) %>% 
+  mutate(Sample = row.names(.), .before='barcode.sequence')
+
+# Do complicated wrangling
+new_metadata = original_metadata #%>%
+  # [...]
+
+# Overwrite the old data
+# Make sure it's in the correct format first!
+# Right side must use the sample_data() format, NOT @sam_data.
+ps@sam_data = sample_data(new_metadata)
+```
+
+Sometimes we want to test differences at a level higher than the ASV level, for example the genus level. Since each ASV maps to only one genus, we can generate counts for each genus by summing all the ASV counts that belong to that genus.
+
+```{r tax_glom}
+ps_genus = tax_glom(ps,taxrank='Genus')
+
+ntaxa(ps)
+ntaxa(ps_genus)
+
+View(ps_genus@tax_table)
+View(ps_genus@otu_table)
+```
+
+```{r Merging phyloseqs}
+# Only gut data
+ps_gut = subset_samples(ps,body.site == 'gut')
+
+# Everything else
+ps_nogut = subset_samples(ps,body.site != 'gut')
+
+# Never mind, let's recombine
+ps_recomb = merge_phyloseq(ps_gut,ps_nogut)
+
+ps
+ps_recomb
+```
+
+```{r Count sums for taxon or sample}
+per_sample = sample_sums(ps)
+hist(per_sample) # This is sequencing depth!
+
+per_taxon = taxa_sums(ps)
+hist(per_taxon)
+hist(log10(per_taxon))
+
+# Calculate relative abundances of each taxon
+# across the whole cohort.
+rel_ab = per_taxon/sum(per_taxon)
+```
+

@@ -1,0 +1,155 @@
+---
+title: "Module 12 - Transforming Phyloseq Data"
+output: html_document
+---
+
+In this R Markdown script, we will load in our taxonomy phyloseq object and transform the data using common functions.
+
+```{r Load data and libraries}
+library(tidyverse)
+library(phyloseq)
+
+# Load object
+ps = readRDS('../Datasets/phyloseq_taxonomy.rds')
+```
+
+# 1. set.seed()
+
+-   To create pseudo-random numbers, computers use special functions that create 'chaotic' sequences that appear random.
+
+-   Different sequences of 'random' numbers will be generated depending on the 'seed' number input into the function.
+
+-   **Setting a seed number allows you to reproduce the same sequence of random numbers each time you run the code**, allowing your results to be reproducible as well.
+
+```{r Introducing rnorm()}
+# rnorm(n) gives n random numbers along the normal distribution.
+hist(rnorm(500))
+
+# Without setting a seed
+# Different every time!
+rnorm(5)
+rnorm(5)
+rnorm(5)
+```
+
+```{r Setting a seed}
+# After setting a seed
+set.seed(421)
+r1 = rnorm(5)
+r2 = rnorm(5)
+
+set.seed(421)
+r1.dup = rnorm(5)
+r2.dup = rnorm(5)
+
+# Test whether they're identical
+print(paste0("It is ",identical(r1,r1.dup)," that r1 is equal to r1.dup!"))
+print(paste0("It is ",identical(r2,r2.dup)," that r2 is equal to r2.dup!"))
+```
+
+```{r Extra non-random lines}
+# Adding lines that DON'T use randomness after set.seed() DOESN'T change the results.
+set.seed(421)
+print('hi there!') # New addition
+r1 = rnorm(5)
+r2 = rnorm(5)
+
+set.seed(421)
+r1.dup = rnorm(5)
+r2.dup = rnorm(5)
+
+# Test whether they're identical
+print(paste0("It is ",identical(r1,r1.dup)," that r1 is equal to r1.dup!"))
+print(paste0("It is ",identical(r2,r2.dup)," that r2 is equal to r2.dup!"))
+```
+
+```{r Extra random lines}
+# Adding lines that DO use randomness after set.seed() DOES change the results.
+set.seed(421)
+r1 = rnorm(5)
+r.new = rnorm(5) # New addition
+r2 = rnorm(5)
+
+set.seed(421)
+r1.dup = rnorm(5)
+r2.dup = rnorm(5)
+
+# Test whether they're identical
+print(paste0("It is ",identical(r1,r1.dup)," that r1 is equal to r1.dup!"))
+print(paste0("It is ",identical(r2,r2.dup)," that r2 is equal to r2.dup!"))
+print(paste0("It is ",identical(r.new,r2.dup)," that r.new is equal to r2.dup!"))
+```
+
+# 2. rarefy_even_depth()
+
+rarefy_even_depth() comes with rngseed, which is a built-in version of set.seed().
+
+It will rarefy to the minimum sample depth in the phyloseq object unless otherwise specified.
+
+```{r}
+ps_rare = rarefy_even_depth(ps,rngseed=421)
+
+# Minimum sample depth of the original ps
+min(sample_sums(ps)) 
+# New sample depths
+table(sample_sums(ps_rare))
+```
+
+# 3. transform_sample_counts()
+
+This allows you to transform the counts in a phyloseq object using any function.
+
+```{r}
+# Relative abundance
+ps_rel_ab = transform_sample_counts(ps, function(x) x / sum(x))
+table(sample_sums(ps_rel_ab))
+```
+
+# 4. microbiome::transform()
+
+The microbiome package contains the transform() function, which allows you to transform counts using several preset functions.
+
+```{r}
+# Relative abundance
+micro_rel_ab = microbiome::transform(ps, 'compositional')
+identical(ps_rel_ab, micro_rel_ab) # Check if they are the same
+```
+
+# 5. Pseudocounts
+
+Pseudocounts are small values added to zero counts to avoid issues with log transformations.
+
+```{r}
+# COUNT DATA: Add count of 1
+ps_pseudo = transform_sample_counts(ps, function(x) x + 1)
+View(ps@otu_table)
+View(ps_pseudo@otu_table)
+
+# RELATIVE ABUNDANCE OR NON-INTEGER DATA: Add 1/2 the smallest nonzero value in the table
+all_values = otu_table(ps_rel_ab)@.Data
+smallest_nonzero = min(all_values[all_values > 0])
+pseudocount = smallest_nonzero / 2
+ps_pseudo_rel_ab = ps_rel_ab %>%
+  transform_sample_counts(function(x) x + pseudocount)
+View(ps_pseudo_rel_ab@otu_table)
+```
+
+# 6. CLR Transformations
+
+The centered log-ratio (CLR) transformation is a common method for transforming compositional data.
+
+```{r}
+# CLR transformation
+# Automatically adds a pseudocount of min_val/2 if 0s present
+ps_clr = microbiome::transform(ps, 'clr')
+
+View(ps_clr@otu_table)
+
+# Compare the ASV counts for a sample before and after transformation
+count_data = get_taxa(ps,"L1S105")
+clr_data = get_taxa(ps_clr,"L1S105")
+plot(count_data,
+     clr_data,
+     main = "L1S105 Taxa Abundances") 
+```
+

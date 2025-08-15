@@ -1,6 +1,6 @@
 ---
 title: "Module 12 - Exploring Phyloseq Objects"
-output: html_notebook
+output: html_document
 ---
 
 In this R Markdown script, we will load in our taxonomy phyloseq object and explore it using a number of R functions.
@@ -104,6 +104,7 @@ table(specific_variable_data)
 
 ```{r Extract all data into a table}
 # Very helpful for plotting, statistics, etc
+ps
 ps_melted = psmelt(ps)
 dim(ps_melted)
 View(ps_melted) # Auto-generated 'Sample' column
@@ -118,7 +119,7 @@ Basic edits are most easily done directly to the phyloseq object itself. Phylose
 ps@sam_data$day2 = ps@sam_data$day *2
 plot(ps@sam_data$day,ps@sam_data$day2)
 
-ps@otu_table = ps@otu_table + 1 # Add a count of 1 to all values
+ps@otu_table = ps@otu_table + 1 # Doesn't work
 
 # Basic formatting
 ps@sam_data$body.site = factor(ps@sam_data$body.site,
@@ -154,6 +155,12 @@ new_metadata = original_metadata #%>%
 ps@sam_data = sample_data(new_metadata)
 ```
 
+```{r Count taxa or samples}
+ps
+ntaxa(ps)
+nsamples(ps)
+```
+
 Sometimes we want to test differences at a level higher than the ASV level, for example the genus level. Since each ASV maps to only one genus, we can generate counts for each genus by summing all the ASV counts that belong to that genus.
 
 ```{r tax_glom}
@@ -164,6 +171,8 @@ ntaxa(ps_genus)
 
 View(ps_genus@tax_table)
 View(ps_genus@otu_table)
+
+melt_genus = psmelt(ps_genus)
 ```
 
 ```{r Merging phyloseqs}

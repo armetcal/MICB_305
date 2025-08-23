@@ -1,0 +1,130 @@
+---
+title: "Module 13 - Recreating QIIME2 Results"
+output: html_document
+---
+
+In this R Markdown script, we will load in our taxonomy phyloseq object and create bar plots.
+
+```{r Load data and libraries}
+library(tidyverse)
+library(phyloseq)
+
+# Load object
+ps = readRDS('../Datasets/phyloseq_taxonomy.rds')
+
+# Let's make a phylum-level plot.
+ps_phylum = tax_glom(ps,'Phylum')
+```
+
+First, let's create a basic version of the bar plot.
+
+```{r basic}
+# Convert to relative abundance, then melt
+relab = ps_phylum %>% 
+  microbiome::transform('compositional') %>% 
+  psmelt()
+
+# Plot it out
+plot_basic = relab %>% ggplot(aes(Sample,Abundance,
+                                  fill=Phylum)) +
+  geom_col(position='stack')
+plot_basic
+```
+
+Hmm - the above plot is okay, but it's kind of hard to read and doesn't tell us about any variables of interest. Let's add some formatting, and separate samples according to body site.
+ 
+```{r with formatting}
+plot_formatted = relab %>% 
+  
+  # Just for fun, let's capitalize the body sites
+  mutate(body.site = str_to_title(.$body.site)) %>% 
+  
+  ggplot(aes(Sample,Abundance,fill=Phylum)) +
+  geom_col(position='stack') +
+  
+  # Different tab for each site, separated into 4 columns
+  # scales = 'free' lets each site drop samples that are from other sites
+  facet_wrap(~body.site, ncol = 4, scales = 'free') +
+  
+  theme_classic(base_size=18) + # Make prettier, all text is 18 pt
+  
+  # Stop the sample names from overlapping
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  
+  # Remove the x axis label
+  xlab(NULL)
+
+plot_formatted
+```
+ 
+It's looking way better, but we can't even see most of these taxa - they're too rare. Let's combine anything that's <1% abundant across all the samples.
+ 
+```{r abundance filtered}
+# First, we'll find the average abundances of each phylum
+sum_of_each_phylum = taxa_sums(ps_phylum)
+avg_of_each_phylum = sum_of_each_phylum/sum(sum_of_each_phylum)
+
+# Find which ones are <1%
+below_1 = avg_of_each_phylum[avg_of_each_phylum<0.01]
+to_change = names(below_1) 
+to_change # Remember that each phylum is represented by the name of the first ASV in that phylum
+
+# Now we'll change the phylum name of these ones to '<1%'
+relab_modified = relab
+unique(relab_modified$Phylum)
+relab_modified$Phylum[relab_modified$OTU %in% to_change] = '<1%'
+unique(relab_modified$Phylum)
+
+# The above could also be accomplished using group_by(Phylum) and summarize(Abundance = mean(Abundance)) commands.
+
+# Now let's plot it again!
+
+plot_abfilt = relab_modified %>% 
+  mutate(body.site = str_to_title(.$body.site)) %>% 
+  ggplot(aes(Sample,Abundance,fill=Phylum)) +
+  geom_col(position='stack') +
+  facet_wrap(~body.site, ncol = 4, scales = 'free') +
+  theme_classic(base_size=18) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  xlab(NULL)
+
+plot_abfilt # Perfect!
+```
+
+Let's save the best plot.
+
+```{r save plot}
+ggsave('../Results/Plots/Module 13a - Individual Bar Plots.jpeg',
+       plot = plot_abfilt,
+       height=4, width = 14) # units are inches by default
+```
+ 
+ You know what? The above plots are nice, but they're too big and hard to compare. Let's make a version where we only have 1 bar per group, where the bar is an average representation of the group.
+ 
+```{r averaged plot}
+# Find the average abundance for each phylum within each body site
+averaged = relab %>% 
+  group_by(OTU,Phylum,body.site) %>% 
+  summarize(Abundance = mean(Abundance)) %>% 
+  ungroup()
+
+# Combine those under 1% 
+avg_modified = averaged
+avg_modified$Phylum[avg_modified$OTU %in% to_change] = '<1%'
+
+# Plot it out
+plot_avg = avg_modified %>% 
+  mutate(body.site = str_to_title(.$body.site)) %>% 
+  
+  # Note that Sample has changed to body.site
+  ggplot(aes(body.site,Abundance,fill=Phylum)) +
+  
+  geom_col(position='stack') +
+  # facet_wrap(~body.site, ncol = 4, scales = 'free') +
+  theme_classic(base_size=18) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  xlab(NULL)
+
+plot_avg # Success!
+```
+

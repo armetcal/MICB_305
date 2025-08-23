@@ -1,0 +1,204 @@
+---
+title: "Module 13 - Recreating QIIME2 Results"
+output: html_document
+---
+
+In this R Markdown script, we will load in our taxonomy phyloseq object, run alpha diversity, plot our results, and run statistics.
+
+```{r Load data and libraries}
+library(tidyverse)
+library(phyloseq)
+library(vegan)
+
+# Load object
+ps = readRDS('../Datasets/phyloseq_taxonomy.rds')
+```
+
+First, let's rarefy our phyloseq object.
+
+```{r rarefaction}
+hist(sample_sums(ps))
+
+# Alpha rarefaction curve (takes a VERY long time to run with large datasets):
+rarecurve( t( data.frame( ps@otu_table)),
+          step=1000) # Only test in 1000 increments
+
+# Once you've decided on a depth, you can then rarefy the data:
+psrare = ps %>% rarefy_even_depth(rngseed = 421)
+
+table(sample_sums(psrare))
+```
+
+Next, let's calculate alpha diversity! There are multiple ways to do it, and we'll use this one:
+
+-   shannon = plot_richness(psrare, x = 'SampleType', measures = c('Observed','Shannon','Chao1','Simpson'))
+
+    -   This calculates multiple metrics, but outputs a plot.
+
+    -   However, we can use \$data to pull the data from the plot!
+
+```{r calculate and plot alpha diversity}
+# Let's see what the default plot looks like:
+set.seed(421)
+p = plot_richness(psrare, x = 'body.site', 
+                  measures = c('Observed','Shannon','Chao1','Simpson'),
+                  color = 'body.site',
+                  )
+p
+
+# It's okay, but it's not ideal to have all the points vertically aligned. 
+# It's hard to tell if there are any overlapping points.
+
+# Pull the data from the plot:
+pdata = p$data
+
+str(pdata) # variable denotes metric, value denotes value
+
+# Let's plot this again:
+p_formatted = pdata %>% ggplot(aes(body.site,value,fill = body.site)) +
+  
+  # Don't plot outlier points - we're plotting all points below.
+  geom_boxplot(outlier.shape = NA) + 
+  
+  # Now we can space the points out sideways, reducing overlap.
+  geom_jitter(height=0,width=0.2) +
+  
+  # Add some formatting
+  theme_classic(base_size=18) +
+  facet_wrap(~variable,ncol=4,scales = 'free_y') +
+  ylab('Alpha Diversity') + xlab(NULL) +
+  theme(axis.text.x = element_text(angle = 45,vjust=1,hjust=1)) +
+  labs(fill='Body Site')
+p_formatted
+```
+
+It's looking good! Now we need to know which groups are different from each other.
+
+If we just need basic statistics and don't need to worry about saving pour results, we could add them directly to the plot:
+
+```{r stats on plot}
+# install.packages("ggpubr")
+library(ggpubr) # Publication-ready ggplot2
+
+comparisons = list( c('gut','left palm'), 
+                    c('gut','right palm'),
+                    c('gut','tongue'))
+
+p_formatted +
+  stat_compare_means(comparisons = comparisons, method='wilcox.test', size=6)
+
+# Oftentimes the p values get cut off at the top - just expand the axis by a fraction
+p_formatted +
+  stat_compare_means(comparisons = comparisons, method='wilcox.test', size=6) +
+  scale_y_continuous(expand = expansion(mult = c(0, .5))) # c(bottom, top)
+```
+
+But what if we want to adjust our P values, or use something other than a Wilcoxon test?
+
+Let's try running the stats separately, then adding them to the plot.
+
+```{r manual stats}
+# We'll stick with Wilcoxon for comparison.
+
+# A single test would look something like this:
+to_compare = c('gut','tongue')
+temp = pdata %>% filter(body.site %in% to_compare)
+wtest = wilcox.test(formula = value ~ body.site, data = temp, conf.int = T)
+wtest # If we want to compile our results into a table, this needs wrangling.
+
+# Wrangling a single Wilcoxon test ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# install.packages("broom")
+library(broom)
+stats = wtest %>% broom::tidy()
+stats # Good, it's in a table now!
+# Let's add a column that tells us what we're comparing.
+stats = stats %>% 
+  mutate(group1 = to_compare[1], group2 = to_compare[2],
+         .before = 'estimate') # Make it the first column
+stats # Looks good!
+
+# Running all Wilcoxon tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Let's avoid writing out the tests for each metric separately.
+# Group_modify to the rescue!
+comparisons = list( c('gut','left palm'), 
+                    c('gut','right palm'),
+                    c('gut','tongue'))
+
+stats = pdata %>% group_by(variable) %>% # Running each metric concurrently
+  group_modify(~ {
+    # Now we'll run our single test for each of the above comparisons
+    
+    temp_stats = data.frame() # We'll put our stats here
+    
+    for(i in comparisons){
+      # i = comparisons[[1]]
+      # Filter dataset
+      temp = .x %>% filter(body.site %in% i) #.x is the grouped dataset
+      # Run test
+      wtest = wilcox.test(formula = value ~ body.site,
+                          data = temp, conf.int = T) %>%
+        broom::tidy() %>% 
+        mutate(group1 = i[1], group2 = i[2],
+               .before = 'estimate')
+      # Add to temp_stats
+      temp_stats = bind_rows(temp_stats,wtest)
+    }
+    
+    # Add adjusted p values
+    temp_stats = temp_stats %>% 
+      mutate(padj = p.adjust(p.value, method='BH'), .after='p.value')
+    
+    return(temp_stats)
+    }
+  ) %>% 
+  ungroup()
+
+View(stats) # Beautiful!
+```
+
+You have two options for adding the stats. The first is to add them manually in Powerpoint or a similar program. This is perfectly acceptable, but also a pain.
+
+If it's preferable to add them programmatically, we can do that too. The downside is that it won't add any horizontal bars, so those have to be added separately if desired.
+
+```{r add them to the plot}
+# calculate maximum diversity values - for plotting
+maxvals = pdata %>% group_by(variable) %>% 
+  summarize(max.y = max(value)) %>% ungroup()
+
+# Create a table that describes which p value goes where
+annot = stats %>% 
+  rename(body.site = group2) %>% # To match the plot data
+  mutate(label = paste('P=',signif(padj,digits = 2),sep='')) %>% # Keep Padj to 2 sig figs
+  left_join(maxvals) %>% 
+  mutate(ypos = 1.1*max.y) # Place P values just a little above the highest point
+
+# Add to plot
+p_formatted +
+  geom_text(data = annot, aes(label = label, y = ypos), size=5) +
+  scale_y_continuous(expand = expansion(mult = c(0,0.1)))
+
+# The above plot is really busy - let's change the P values to asterisks.
+annot = annot %>% 
+  mutate(label2 = ifelse(padj>0.05,'NS',
+                         ifelse(padj>0.01,'*',
+                                ifelse(padj>0.001,'**', '***'))))
+
+# Add to plot
+p_final = p_formatted +
+  geom_text(data = annot, aes(label = label2, y = ypos), size=5) +
+  scale_y_continuous(expand = expansion(mult = c(0,0.1)))
+p_final # Sweet!
+```
+
+Let's save our best plot, as well as our statistics.
+
+```{r save outputs}
+# Save plot
+ggsave('../Results/Plots/Module 13b - Alpha Diversity.jpeg',
+       plot = p_final,
+       height= 4, width = 12)
+
+# Save statistics as an Excel file
+writexl::write_xlsx(list('Alpha Diversity' = stats),
+                    '../Results/Tables/Module 13b - Alpha Diversity.xlsx')
+```

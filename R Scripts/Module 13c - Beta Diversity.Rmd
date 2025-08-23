@@ -1,0 +1,129 @@
+---
+title: "Module 13 - Recreating QIIME2 Results"
+output: html_document
+---
+
+In this R Markdown script, we will load in our taxonomy phyloseq object, run beta diversity, plot our results, and run statistics.
+
+```{r Load data and libraries}
+library(tidyverse)
+library(phyloseq)
+library(vegan)
+
+# Load object
+ps = readRDS('../Datasets/phyloseq_taxonomy.rds')
+
+# rarefy the data:
+psrare = ps %>% rarefy_even_depth(rngseed = 421)
+```
+
+Next, let's calculate beta diversity. distance() can only calculate one metric at a time, so we'll use Bray-Curtis.
+
+```{r calculate bray-curtis distances}
+# Calculate the distance between each sample pair
+ps_bray = phyloseq::distance(psrare, method = "bray")
+View(as.matrix(ps_bray)) # Every pairwise comparison included
+```
+
+Next we'll apply multidimensional scaling (MDS). This takes the distance matrix and reduces it to a few dimensions. We will then plot these two dimensions.
+
+```{r normalize and plot}
+# MDS scaling
+mds = metaMDS(ps_bray)
+
+# Extract data
+mds_data = mds$points %>% as.data.frame %>%
+  merge(sample_data(psrare), by='row.names', sort=F)
+head(mds_data)
+
+# Plot it
+p = mds_data %>%
+  ggplot(aes(MDS1,MDS2,color = body.site)) +
+  geom_point() +
+  stat_ellipse() +
+  theme_classic(base_size=18)
+p
+```
+
+Now we need to know whether beta diversity is dependent on body site. We'll run PERMANOVAs using the adonis() function from the vegan package.
+
+```{r PERMANOVA on body.site}
+metadata = sample_data(psrare) %>% data.frame() # to make the next lines easier
+
+# Single variable
+stats_univar = adonis2(ps_bray ~ body.site, data = metadata)
+
+# Two variables - adding host as a covariable, just for fun
+# by='margin' is important here - it gives us the stats for each variable separately
+stats_multivar = adonis2(ps_bray ~ body.site + subject, data = metadata, by = 'margin') 
+
+# Combine into a table
+stats = bind_rows('Univariate' = stats_univar %>% as.data.frame() %>% 
+                    rownames_to_column('Variable'),
+                  'Multivariate' = stats_multivar %>% as.data.frame() %>% 
+                    rownames_to_column('Variable'),
+                  .id = 'Model') # First column is Model, either Uni or Multi
+
+# Add some formatting
+# Adonis2 doesn't calculate P values under 0.001. If you see 0.001, it can be reported as <0.001.
+stats = stats %>% rename(Pval = `Pr(>F)`) %>%
+  filter(!is.na(Pval)) # Remove the irrelevant lines
+
+stats # Looks like body site is significant, even when controlling for host!
+```
+
+So we have shown that body site correlates significantly with beta diversity. But which sites are different from each other?
+
+```{r attempt 1 - subset metadata}
+
+# Select two body sites to compare
+to_compare = c('gut','tongue')
+# Run a PERMANOVA on just those two body sites
+stats_univar = adonis2(ps_bray ~ body.site, data = metadata %>% filter(body.site %in% to_compare))
+
+# Uh oh. This is wrong. The distance matrix still includes all samples, so it doesn't match up.
+```
+
+If we want to compare specific groups that are shown in our beta diversity plot, we need to subset the distance matrix object first.
+
+```{r attempt 2 - subset distance matrix}
+# Select two body sites to compare
+to_compare = c('gut','tongue')
+
+# List samples that belong to those body sites
+samples_to_keep = metadata %>% filter(body.site %in% to_compare) %>% rownames()
+
+# Subset the distance matrix to only include those samples
+ps_bray_sub = as.matrix(ps_bray)[samples_to_keep,samples_to_keep] %>% as.dist()
+
+# Run a PERMANOVA on just those two body sites
+stats_univar = adonis2(ps_bray_sub ~ body.site,
+                       data = metadata %>% filter(body.site %in% to_compare))
+
+stats_univar # Much better!
+```
+
+P values are usually added manually to beta diversity plots, or are added to the figure legend.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We've established that body site is a major driver of beta diversity. In particular, most of the differences seem to be driven by the fact that the gut samples ar dramatically different from everything else.
+
+What if you don't care about the gut samples at all? Beta diversity calculations are influenced by every sample included in the dataset, so even if you remove the gut samples after calculating distances, they're still going to have a huge influence on the results.
+
+In this case, it's best to simply remove the gut samples from the phyloseq object, then recalculate distances and MDS.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Let's save our beta diversity plot, as well as our pre-subsetting statistics.
+
+```{r save outputs}
+# Save plot
+ggsave('../Results/Plots/Module 13c - Beta Diversity.jpeg',
+       plot = p,
+       height= 4, width = 6)
+
+# Save statistics as an Excel file
+writexl::write_xlsx(list('Beta Diversity' = stats),
+                    '../Results/Tables/Module 13c - Beta Diversity.xlsx')
+```

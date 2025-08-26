@@ -32,7 +32,7 @@ plot_basic
 ```
 
 Hmm - the above plot is okay, but it's kind of hard to read and doesn't tell us about any variables of interest. Let's add some formatting, and separate samples according to body site.
- 
+
 ```{r with formatting}
 plot_formatted = relab %>% 
   
@@ -56,9 +56,9 @@ plot_formatted = relab %>%
 
 plot_formatted
 ```
- 
-It's looking way better, but we can't even see most of these taxa - they're too rare. Let's combine anything that's <1% abundant across all the samples.
- 
+
+It's looking way better, but we can't even see most of these taxa - they're too rare. Let's combine anything that's \<1% abundant across all the samples.
+
 ```{r abundance filtered}
 # First, we'll find the average abundances of each phylum
 sum_of_each_phylum = taxa_sums(ps_phylum)
@@ -98,9 +98,9 @@ ggsave('../Results/Plots/Module 13a - Individual Bar Plots.jpeg',
        plot = plot_abfilt,
        height=4, width = 14) # units are inches by default
 ```
- 
- You know what? The above plots are nice, but they're too big and hard to compare. Let's make a version where we only have 1 bar per group, where the bar is an average representation of the group.
- 
+
+You know what? The above plots are nice, but they're too big and hard to compare. Let's make a version where we only have 1 bar per group, where the bar is an average representation of the group.
+
 ```{r averaged plot}
 # Find the average abundance for each phylum within each body site
 averaged = relab %>% 
@@ -120,11 +120,10 @@ plot_avg = avg_modified %>%
   ggplot(aes(body.site,Abundance,fill=Phylum)) +
   
   geom_col(position='stack') +
-  # facet_wrap(~body.site, ncol = 4, scales = 'free') +
+  facet_wrap(~body.site, ncol = 4, scales = 'free') +
   theme_classic(base_size=18) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   xlab(NULL)
 
 plot_avg # Success!
 ```
-

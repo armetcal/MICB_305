@@ -24,14 +24,14 @@ rarecurve( t( data.frame( ps@otu_table)),
           step=1000) # Only test in 1000 increments
 
 # Once you've decided on a depth, you can then rarefy the data:
-psrare = ps %>% rarefy_even_depth(rngseed = 421)
+psrare = ps %>% rarefy_even_depth(sample.size = 2500, rngseed = 421)
 
 table(sample_sums(psrare))
 ```
 
 Next, let's calculate alpha diversity! There are multiple ways to do it, and we'll use this one:
 
--   shannon = plot_richness(psrare, x = 'SampleType', measures = c('Observed','Shannon','Chao1','Simpson'))
+-   shannon = plot_richness(psrare, x = 'body.site', measures = c('Observed','Shannon','Chao1','Simpson'))
 
     -   This calculates multiple metrics, but outputs a plot.
 
@@ -90,7 +90,7 @@ p_formatted +
 # Oftentimes the p values get cut off at the top - just expand the axis by a fraction
 p_formatted +
   stat_compare_means(comparisons = comparisons, method='wilcox.test', size=6) +
-  scale_y_continuous(expand = expansion(mult = c(0, .5))) # c(bottom, top)
+  scale_y_continuous(expand = expansion(mult = c(0, .1))) # c(bottom, top)
 ```
 
 But what if we want to adjust our P values, or use something other than a Wilcoxon test?
@@ -168,7 +168,7 @@ maxvals = pdata %>% group_by(variable) %>%
 # Create a table that describes which p value goes where
 annot = stats %>% 
   rename(body.site = group2) %>% # To match the plot data
-  mutate(label = paste('P=',signif(padj,digits = 2),sep='')) %>% # Keep Padj to 2 sig figs
+  mutate(label = paste('Padj=',signif(padj,digits = 2),sep='')) %>% # Keep Padj to 2 sig figs
   left_join(maxvals) %>% 
   mutate(ypos = 1.1*max.y) # Place P values just a little above the highest point
 

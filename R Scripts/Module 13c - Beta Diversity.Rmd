@@ -14,14 +14,14 @@ library(vegan)
 ps = readRDS('../Datasets/phyloseq_taxonomy.rds')
 
 # rarefy the data:
-psrare = ps %>% rarefy_even_depth(rngseed = 421)
+psrare = ps %>% rarefy_even_depth(sample.size = 2500, rngseed = 421)
 ```
 
 Next, let's calculate beta diversity. distance() can only calculate one metric at a time, so we'll use Bray-Curtis.
 
 ```{r calculate bray-curtis distances}
 # Calculate the distance between each sample pair
-ps_bray = phyloseq::distance(psrare, method = "bray")
+ps_bray = phyloseq::distance(psrare, method = "wunifrac")
 View(as.matrix(ps_bray)) # Every pairwise comparison included
 ```
 
@@ -29,6 +29,7 @@ Next we'll apply multidimensional scaling (MDS). This takes the distance matrix 
 
 ```{r normalize and plot}
 # MDS scaling
+# set.seed(421)
 mds = metaMDS(ps_bray)
 
 # Extract data

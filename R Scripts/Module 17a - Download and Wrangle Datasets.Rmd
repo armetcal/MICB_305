@@ -1,0 +1,22 @@
+---
+title: "Module 17a - Load and Wrangle Data"
+output: html_document
+date: "2025-08-28"
+---
+
+This R markdown script will download the HMP2 data from ibdmdb.org. Specifically, we will download the metagenomic and metatranscriptomic data, and we will then wrangle them into a usable format.
+
+```{r Load libraries and download files}
+library(tidyverse)
+
+# URLs for metagenomic (MGX) and metatarnscriptomic (MTX) data
+mgx = 'https://g-227ca.190ebd.75bc.data.globus.org/ibdmdb/products/HMP2/MGX/2018-05-04/pathabundances_3.tsv.gz'
+mtx = 'https://g-227ca.190ebd.75bc.data.globus.org/ibdmdb/products/HMP2/MTX/2017-12-14/pathabundances_3.tsv.gz'
+
+# Download files
+download.file(mgx, '../Datasets/hmp2_metacyc_mgx.tsv.gz')
+download.file(mtx, '../Datasets/hmp2_metacyc_mtx.tsv.gz')
+
+df_mgx = read_tsv(mgx)
+```
+

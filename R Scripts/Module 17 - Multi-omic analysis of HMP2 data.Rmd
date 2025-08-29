@@ -1,0 +1,32 @@
+---
+title: "Module 17 - Multi-omic analysis of HMP2 data"
+output: html_document
+date: "2025-08-28"
+---
+
+In this script, we will analyze the MetaCyc pathway data from the IBDMDB (HMP2) dataset. We will use the publicly available metagenomic and metatranscriptomic data files.
+
+This module is based on the tutorial from the MTXmodel package: <https://biobakery.github.io/MTXmodel/articles/MTX_model_tutorial.html>.
+
+The MTX model package is designed to co-analyze metagenomic and metatranscriptomic data.
+
+**Carolyn Forward** is credited with preprocessing the IBDMDB datasets used in this R markdown script and adapting the MTXmodel tutorial for this module. Thanks, Carolyn!
+
+```{r Load libraries and data files}
+library(devtools)
+install_github('biobakery/MTX_model')
+
+library(tidyverse)
+library(MTXmodel)
+
+mgx = read.delim("../Datasets/HMP2_pwyDNA.tsv", row.names = 1)
+mtx = read.delim("../Datasets/HMP2_pwyRNA.tsv", row.names = 1)
+
+# Examine data
+str(mgx)
+View(mgx)
+```
+
+```{r}
+
+```

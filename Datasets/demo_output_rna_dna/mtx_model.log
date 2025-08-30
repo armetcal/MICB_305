@@ -1,0 +1,469 @@
+2025-08-29 20:14:38.927892 INFO::Writing function arguments to log file
+2025-08-29 20:14:38.929334 DEBUG::Function arguments
+2025-08-29 20:14:38.929678 DEBUG::Output folder: ../Datasets/demo_output_rna_dna
+2025-08-29 20:14:38.930002 DEBUG::Min Abundance: 0.000000
+2025-08-29 20:14:38.930287 DEBUG::Min Prevalence: 0.100000
+2025-08-29 20:14:38.930612 DEBUG::Normalization: NONE
+2025-08-29 20:14:38.930952 DEBUG::Transform: LOG
+2025-08-29 20:14:38.931217 DEBUG::Analysis method: LM
+2025-08-29 20:14:38.931502 DEBUG::Max significance: 0.250000
+2025-08-29 20:14:38.931772 DEBUG::Random effects:
+2025-08-29 20:14:38.932042 DEBUG::Fixed effects: diagnosis
+2025-08-29 20:14:38.932328 DEBUG::Correction method: BH
+2025-08-29 20:14:38.932557 DEBUG::Standardize: TRUE
+2025-08-29 20:14:38.932777 DEBUG::Cores: 1
+2025-08-29 20:14:38.932973 INFO::Verifying options selected are valid
+2025-08-29 20:14:38.933725 INFO::Determining format of input files
+2025-08-29 20:14:38.934514 INFO::Input format is data samples as rows and metadata samples as rows
+2025-08-29 20:14:38.93524 INFO::Input format is dnadata samples as rows and metadata samples as rows
+2025-08-29 20:14:38.938895 DEBUG::A total of 463 samples were found in both the data and metadata
+2025-08-29 20:14:38.939172 DEBUG::Reordering data/metadata to use same sample ordering
+2025-08-29 20:14:38.943264 INFO::Formula for fixed effects: expr ~  diagnosis
+2025-08-29 20:14:38.944096 INFO::Filter data based on min abundance and min prevalence
+2025-08-29 20:14:38.944607 INFO::Total samples in data: 463
+2025-08-29 20:14:38.945099 INFO::Min samples required with min abundance for a feature not to be filtered: 46.300000
+2025-08-29 20:14:38.947557 INFO::Total filtered features: 0
+2025-08-29 20:14:38.948096 INFO::Filtered feature names from abundance and prevalence filtering:
+2025-08-29 20:14:38.952145 INFO::Total filtered features with variance filtering: 0
+2025-08-29 20:14:38.95266 INFO::Filtered feature names from variance filtering:
+2025-08-29 20:14:38.953061 INFO::Running selected normalization method: NONE
+2025-08-29 20:14:38.95348 INFO::Applying z-score to standardize continuous metadata
+2025-08-29 20:14:38.955683 INFO::Running selected transform method: LOG
+2025-08-29 20:14:38.968834 INFO::Running selected analysis method: LM
+2025-08-29 20:14:38.970745 INFO::Final formula: ~,expr,diagnosis + X1CMET2_PWY_N10_formyl_tetrahydrofolate_biosyn
+2025-08-29 20:14:38.974097 INFO::Metadata items: diagnosis, X1CMET2_PWY_N10_formyl_tetrahydrofolate_biosyn
+2025-08-29 20:14:38.997674 INFO::Final formula: ~,expr,diagnosis + ANAEROFRUCAT_PWY_homolactic_fermentation
+2025-08-29 20:14:38.998901 INFO::Metadata items: diagnosis, ANAEROFRUCAT_PWY_homolactic_fermentation
+2025-08-29 20:14:39.177072 INFO::Final formula: ~,expr,diagnosis + ANAGLYCOLYSIS_PWY_glycolysis_III
+2025-08-29 20:14:39.177663 INFO::Metadata items: diagnosis, ANAGLYCOLYSIS_PWY_glycolysis_III
+2025-08-29 20:14:39.179202 INFO::Final formula: ~,expr,diagnosis + ARGININE_SYN4_PWY_L_ornithine_de_novo_biosyn
+2025-08-29 20:14:39.179581 INFO::Metadata items: diagnosis, ARGININE_SYN4_PWY_L_ornithine_de_novo_biosyn
+2025-08-29 20:14:39.180978 INFO::Final formula: ~,expr,diagnosis + ARGSYN_PWY_L_arginine_biosyn_I
+2025-08-29 20:14:39.181342 INFO::Metadata items: diagnosis, ARGSYN_PWY_L_arginine_biosyn_I
+2025-08-29 20:14:39.182725 INFO::Final formula: ~,expr,diagnosis + ARGSYNBSUB_PWY_L_arginine_biosyn_II
+2025-08-29 20:14:39.183068 INFO::Metadata items: diagnosis, ARGSYNBSUB_PWY_L_arginine_biosyn_II
+2025-08-29 20:14:39.184394 INFO::Final formula: ~,expr,diagnosis + ARO_PWY_chorismate_biosyn_I
+2025-08-29 20:14:39.184735 INFO::Metadata items: diagnosis, ARO_PWY_chorismate_biosyn_I
+2025-08-29 20:14:39.186073 INFO::Final formula: ~,expr,diagnosis + ASPASN_PWY_SP_of_L_aspartate__L_asparagine_biosyn
+2025-08-29 20:14:39.186404 INFO::Metadata items: diagnosis, ASPASN_PWY_SP_of_L_aspartate__L_asparagine_biosyn
+2025-08-29 20:14:39.187778 INFO::Final formula: ~,expr,diagnosis + BRANCHED_CHAIN_AA_SYN_PWY_SP_of_branched_amino_acid_biosyn
+2025-08-29 20:14:39.18812 INFO::Metadata items: diagnosis, BRANCHED_CHAIN_AA_SYN_PWY_SP_of_branched_amino_acid_biosyn
+2025-08-29 20:14:39.189737 INFO::Final formula: ~,expr,diagnosis + CALVIN_PWY_Calvin_Benson_Bassham_cyc
+2025-08-29 20:14:39.190171 INFO::Metadata items: diagnosis, CALVIN_PWY_Calvin_Benson_Bassham_cyc
+2025-08-29 20:14:39.191603 INFO::Final formula: ~,expr,diagnosis + CITRULBIO_PWY_L_citrulline_biosyn
+2025-08-29 20:14:39.191968 INFO::Metadata items: diagnosis, CITRULBIO_PWY_L_citrulline_biosyn
+2025-08-29 20:14:39.193388 INFO::Final formula: ~,expr,diagnosis + COA_PWY_1_coenzyme_A_biosyn_II
+2025-08-29 20:14:39.193746 INFO::Metadata items: diagnosis, COA_PWY_1_coenzyme_A_biosyn_II
+2025-08-29 20:14:39.195067 INFO::Final formula: ~,expr,diagnosis + COA_PWY_coenzyme_A_biosyn_I
+2025-08-29 20:14:39.195406 INFO::Metadata items: diagnosis, COA_PWY_coenzyme_A_biosyn_I
+2025-08-29 20:14:39.19676 INFO::Final formula: ~,expr,diagnosis + COBALSYN_PWY_adenosylcobalamin_salvage_from_cobinamide_I
+2025-08-29 20:14:39.197084 INFO::Metadata items: diagnosis, COBALSYN_PWY_adenosylcobalamin_salvage_from_cobinamide_I
+2025-08-29 20:14:39.198454 INFO::Final formula: ~,expr,diagnosis + COMPLETE_ARO_PWY_SP_of_aromatic_amino_acid_biosyn
+2025-08-29 20:14:39.198814 INFO::Metadata items: diagnosis, COMPLETE_ARO_PWY_SP_of_aromatic_amino_acid_biosyn
+2025-08-29 20:14:39.200214 INFO::Final formula: ~,expr,diagnosis + DAPLYSINESYN_PWY_L_lysine_biosyn_I
+2025-08-29 20:14:39.200565 INFO::Metadata items: diagnosis, DAPLYSINESYN_PWY_L_lysine_biosyn_I
+2025-08-29 20:14:39.201937 INFO::Final formula: ~,expr,diagnosis + DENOVOPURINE2_PWY_SP_of_purine_nt_de_novo_biosyn_II
+2025-08-29 20:14:39.20229 INFO::Metadata items: diagnosis, DENOVOPURINE2_PWY_SP_of_purine_nt_de_novo_biosyn_II
+2025-08-29 20:14:39.203673 INFO::Final formula: ~,expr,diagnosis + DTDPRHAMSYN_PWY_dTDP_L_rhamnose_biosyn_I
+2025-08-29 20:14:39.204009 INFO::Metadata items: diagnosis, DTDPRHAMSYN_PWY_dTDP_L_rhamnose_biosyn_I
+2025-08-29 20:14:39.205511 INFO::Final formula: ~,expr,diagnosis + FASYN_ELONG_PWY_fatty_acid_elongation__saturated
+2025-08-29 20:14:39.205832 INFO::Metadata items: diagnosis, FASYN_ELONG_PWY_fatty_acid_elongation__saturated
+2025-08-29 20:14:39.20725 INFO::Final formula: ~,expr,diagnosis + FASYN_INITIAL_PWY_SP_of_fatty_acid_biosyn_initiation
+2025-08-29 20:14:39.207593 INFO::Metadata items: diagnosis, FASYN_INITIAL_PWY_SP_of_fatty_acid_biosyn_initiation
+2025-08-29 20:14:39.209013 INFO::Final formula: ~,expr,diagnosis + FUCCAT_PWY_fucose_deg
+2025-08-29 20:14:39.209363 INFO::Metadata items: diagnosis, FUCCAT_PWY_fucose_deg
+2025-08-29 20:14:39.210803 INFO::Final formula: ~,expr,diagnosis + GALACT_GLUCUROCAT_PWY_SP_of_hexuronide__hexuronate_deg
+2025-08-29 20:14:39.211138 INFO::Metadata items: diagnosis, GALACT_GLUCUROCAT_PWY_SP_of_hexuronide__hexuronate_deg
+2025-08-29 20:14:39.212578 INFO::Final formula: ~,expr,diagnosis + GALACTUROCAT_PWY_D_galacturonate_deg_I
+2025-08-29 20:14:39.212912 INFO::Metadata items: diagnosis, GALACTUROCAT_PWY_D_galacturonate_deg_I
+2025-08-29 20:14:39.214357 INFO::Final formula: ~,expr,diagnosis + GLCMANNANAUT_PWY_SP_of_N_acetylglucosamine_N_acetylmannosamine__N_acetylneuraminate_deg
+2025-08-29 20:14:39.214703 INFO::Metadata items: diagnosis, GLCMANNANAUT_PWY_SP_of_N_acetylglucosamine_N_acetylmannosamine__N_acetylneuraminate_deg
+2025-08-29 20:14:39.216142 INFO::Final formula: ~,expr,diagnosis + GLUCONEO_PWY_gluconeogenesis_I
+2025-08-29 20:14:39.216504 INFO::Metadata items: diagnosis, GLUCONEO_PWY_gluconeogenesis_I
+2025-08-29 20:14:39.218342 INFO::Final formula: ~,expr,diagnosis + GLUCOSE1PMETAB_PWY_glucose__glucose_1_phosphate_deg
+2025-08-29 20:14:39.218775 INFO::Metadata items: diagnosis, GLUCOSE1PMETAB_PWY_glucose__glucose_1_phosphate_deg
+2025-08-29 20:14:39.220315 INFO::Final formula: ~,expr,diagnosis + GLUCUROCAT_PWY_SP_of_beta_D_glucuronide__D_glucuronate_deg
+2025-08-29 20:14:39.220679 INFO::Metadata items: diagnosis, GLUCUROCAT_PWY_SP_of_beta_D_glucuronide__D_glucuronate_deg
+2025-08-29 20:14:39.22208 INFO::Final formula: ~,expr,diagnosis + GLYCOGENSYNTH_PWY_glycogen_biosyn_I
+2025-08-29 20:14:39.222437 INFO::Metadata items: diagnosis, GLYCOGENSYNTH_PWY_glycogen_biosyn_I
+2025-08-29 20:14:39.223986 INFO::Final formula: ~,expr,diagnosis + GLYCOLYSIS_E_D_SP_of_glycolysis__Entner_Doudoroff
+2025-08-29 20:14:39.224331 INFO::Metadata items: diagnosis, GLYCOLYSIS_E_D_SP_of_glycolysis__Entner_Doudoroff
+2025-08-29 20:14:39.2257 INFO::Final formula: ~,expr,diagnosis + GLYCOLYSIS_glycolysis_I
+2025-08-29 20:14:39.226036 INFO::Metadata items: diagnosis, GLYCOLYSIS_glycolysis_I
+2025-08-29 20:14:39.227437 INFO::Final formula: ~,expr,diagnosis + GLYOXYLATE_BYPASS_glyoxylate_cyc
+2025-08-29 20:14:39.227767 INFO::Metadata items: diagnosis, GLYOXYLATE_BYPASS_glyoxylate_cyc
+2025-08-29 20:14:39.229145 INFO::Final formula: ~,expr,diagnosis + HISDEG_PWY_L_histidine_deg_I
+2025-08-29 20:14:39.229488 INFO::Metadata items: diagnosis, HISDEG_PWY_L_histidine_deg_I
+2025-08-29 20:14:39.230979 INFO::Final formula: ~,expr,diagnosis + HISTSYN_PWY_L_histidine_biosyn
+2025-08-29 20:14:39.231337 INFO::Metadata items: diagnosis, HISTSYN_PWY_L_histidine_biosyn
+2025-08-29 20:14:39.232797 INFO::Final formula: ~,expr,diagnosis + ILEUSYN_PWY_L_isoleucine_biosyn_I
+2025-08-29 20:14:39.233134 INFO::Metadata items: diagnosis, ILEUSYN_PWY_L_isoleucine_biosyn_I
+2025-08-29 20:14:39.234575 INFO::Final formula: ~,expr,diagnosis + MET_SAM_PWY_SP_of_S_adenosyl_L_methionine_biosyn
+2025-08-29 20:14:39.234906 INFO::Metadata items: diagnosis, MET_SAM_PWY_SP_of_S_adenosyl_L_methionine_biosyn
+2025-08-29 20:14:39.236398 INFO::Final formula: ~,expr,diagnosis + METSYN_PWY_L_homoserine__L_methionine_biosyn
+2025-08-29 20:14:39.236829 INFO::Metadata items: diagnosis, METSYN_PWY_L_homoserine__L_methionine_biosyn
+2025-08-29 20:14:39.238391 INFO::Final formula: ~,expr,diagnosis + NAGLIPASYN_PWY_lipid_IVA_biosyn
+2025-08-29 20:14:39.23874 INFO::Metadata items: diagnosis, NAGLIPASYN_PWY_lipid_IVA_biosyn
+2025-08-29 20:14:39.240237 INFO::Final formula: ~,expr,diagnosis + NONMEVIPP_PWY_methylerythritol_phosphate_pwy_I
+2025-08-29 20:14:39.2406 INFO::Metadata items: diagnosis, NONMEVIPP_PWY_methylerythritol_phosphate_pwy_I
+2025-08-29 20:14:39.242064 INFO::Final formula: ~,expr,diagnosis + NONOXIPENT_PWY_pentose_phosphate_pwy
+2025-08-29 20:14:39.242415 INFO::Metadata items: diagnosis, NONOXIPENT_PWY_pentose_phosphate_pwy
+2025-08-29 20:14:39.243866 INFO::Final formula: ~,expr,diagnosis + OANTIGEN_PWY_O_antigen_building_blocks_biosyn
+2025-08-29 20:14:39.244213 INFO::Metadata items: diagnosis, OANTIGEN_PWY_O_antigen_building_blocks_biosyn
+2025-08-29 20:14:39.245712 INFO::Final formula: ~,expr,diagnosis + P105_PWY_TCA_cyc_IV
+2025-08-29 20:14:39.246061 INFO::Metadata items: diagnosis, P105_PWY_TCA_cyc_IV
+2025-08-29 20:14:39.247664 INFO::Final formula: ~,expr,diagnosis + P108_PWY_pyruvate_fermentation_to_propanoate_I
+2025-08-29 20:14:39.24803 INFO::Metadata items: diagnosis, P108_PWY_pyruvate_fermentation_to_propanoate_I
+2025-08-29 20:14:39.25009 INFO::Final formula: ~,expr,diagnosis + P161_PWY_acetylene_deg
+2025-08-29 20:14:39.250549 INFO::Metadata items: diagnosis, P161_PWY_acetylene_deg
+2025-08-29 20:14:39.251909 WARNING::Feature name not found in dnadata so not applied to formula with effects: diagnosis
+2025-08-29 20:14:39.252423 WARNING::Feature name not found in dnadata so not applied to formula with effects: diagnosis
+2025-08-29 20:14:39.252889 WARNING::Feature name not found in dnadata so not applied to formula with effects: diagnosis
+2025-08-29 20:14:39.253527 INFO::Final formula: ~,expr,diagnosis + P42_PWY_incomplete_reductive_TCA_cyc
+2025-08-29 20:14:39.253951 INFO::Metadata items: diagnosis, P42_PWY_incomplete_reductive_TCA_cyc
+2025-08-29 20:14:39.255482 INFO::Final formula: ~,expr,diagnosis + P441_PWY_SP_of_N_acetylneuraminate_deg
+2025-08-29 20:14:39.255848 INFO::Metadata items: diagnosis, P441_PWY_SP_of_N_acetylneuraminate_deg
+2025-08-29 20:14:39.257513 INFO::Final formula: ~,expr,diagnosis + P461_PWY_hexitol_fermentation_to_lactate_formate_ethanol__acetate
+2025-08-29 20:14:39.257924 INFO::Metadata items: diagnosis, P461_PWY_hexitol_fermentation_to_lactate_formate_ethanol__acetate
+2025-08-29 20:14:39.259635 INFO::Final formula: ~,expr,diagnosis + PANTO_PWY_phosphopantothenate_biosyn_I
+2025-08-29 20:14:39.260023 INFO::Metadata items: diagnosis, PANTO_PWY_phosphopantothenate_biosyn_I
+2025-08-29 20:14:39.261686 INFO::Final formula: ~,expr,diagnosis + PANTOSYN_PWY_pantothenate__coenzyme_A_biosyn_I
+2025-08-29 20:14:39.262078 INFO::Metadata items: diagnosis, PANTOSYN_PWY_pantothenate__coenzyme_A_biosyn_I
+2025-08-29 20:14:39.26375 INFO::Final formula: ~,expr,diagnosis + PENTOSE_P_PWY_pentose_phosphate_pwy
+2025-08-29 20:14:39.264111 INFO::Metadata items: diagnosis, PENTOSE_P_PWY_pentose_phosphate_pwy
+2025-08-29 20:14:39.266034 INFO::Final formula: ~,expr,diagnosis + PEPTIDOGLYCANSYN_PWY_peptidoglycan_biosyn_I
+2025-08-29 20:14:39.266502 INFO::Metadata items: diagnosis, PEPTIDOGLYCANSYN_PWY_peptidoglycan_biosyn_I
+2025-08-29 20:14:39.268166 INFO::Final formula: ~,expr,diagnosis + PHOSLIPSYN_PWY_SP_of_phospholipid_biosyn_I
+2025-08-29 20:14:39.26853 INFO::Metadata items: diagnosis, PHOSLIPSYN_PWY_SP_of_phospholipid_biosyn_I
+2025-08-29 20:14:39.270089 INFO::Final formula: ~,expr,diagnosis + PRPP_PWY_SP_of_histidine_purine__pyrimidine_biosyn
+2025-08-29 20:14:39.270467 INFO::Metadata items: diagnosis, PRPP_PWY_SP_of_histidine_purine__pyrimidine_biosyn
+2025-08-29 20:14:39.272005 INFO::Final formula: ~,expr,diagnosis + PWY_1042_glycolysis_IV
+2025-08-29 20:14:39.272362 INFO::Metadata items: diagnosis, PWY_1042_glycolysis_IV
+2025-08-29 20:14:39.273931 INFO::Final formula: ~,expr,diagnosis + PWY_1269_CMP_3_deoxy_D_manno_octulosonate_biosyn_I
+2025-08-29 20:14:39.27433 INFO::Metadata items: diagnosis, PWY_1269_CMP_3_deoxy_D_manno_octulosonate_biosyn_I
+2025-08-29 20:14:39.276072 INFO::Final formula: ~,expr,diagnosis + PWY_2941_L_lysine_biosyn_II
+2025-08-29 20:14:39.27646 INFO::Metadata items: diagnosis, PWY_2941_L_lysine_biosyn_II
+2025-08-29 20:14:39.27804 INFO::Final formula: ~,expr,diagnosis + PWY_2942_L_lysine_biosyn_III
+2025-08-29 20:14:39.278395 INFO::Metadata items: diagnosis, PWY_2942_L_lysine_biosyn_III
+2025-08-29 20:14:39.27993 INFO::Final formula: ~,expr,diagnosis + PWY_3001_SP_of_L_isoleucine_biosyn_I
+2025-08-29 20:14:39.280292 INFO::Metadata items: diagnosis, PWY_3001_SP_of_L_isoleucine_biosyn_I
+2025-08-29 20:14:39.281889 WARNING::Feature name not found in dnadata so not applied to formula with effects: diagnosis
+2025-08-29 20:14:39.28252 WARNING::Feature name not found in dnadata so not applied to formula with effects: diagnosis
+2025-08-29 20:14:39.283338 INFO::Final formula: ~,expr,diagnosis + PWY_3841_folate_transformations_II
+2025-08-29 20:14:39.28375 INFO::Metadata items: diagnosis, PWY_3841_folate_transformations_II
+2025-08-29 20:14:39.285404 INFO::Final formula: ~,expr,diagnosis + PWY_4041_beta_glutamyl_cyc
+2025-08-29 20:14:39.285777 INFO::Metadata items: diagnosis, PWY_4041_beta_glutamyl_cyc
+2025-08-29 20:14:39.287407 INFO::Final formula: ~,expr,diagnosis + PWY_4242_pantothenate__coenzyme_A_biosyn_III
+2025-08-29 20:14:39.287879 INFO::Metadata items: diagnosis, PWY_4242_pantothenate__coenzyme_A_biosyn_III
+2025-08-29 20:14:39.28953 INFO::Final formula: ~,expr,diagnosis + PWY_4981_L_proline_biosyn_II
+2025-08-29 20:14:39.289922 INFO::Metadata items: diagnosis, PWY_4981_L_proline_biosyn_II
+2025-08-29 20:14:39.29159 INFO::Final formula: ~,expr,diagnosis + PWY_4984_urea_cyc
+2025-08-29 20:14:39.291965 INFO::Metadata items: diagnosis, PWY_4984_urea_cyc
+2025-08-29 20:14:39.293645 INFO::Final formula: ~,expr,diagnosis + PWY_5030_L_histidine_deg_III
+2025-08-29 20:14:39.294035 INFO::Metadata items: diagnosis, PWY_5030_L_histidine_deg_III
+2025-08-29 20:14:39.307213 INFO::Final formula: ~,expr,diagnosis + PWY_5083_NAD_NADH_phosphorylation__dephosphorylation
+2025-08-29 20:14:39.30775 INFO::Metadata items: diagnosis, PWY_5083_NAD_NADH_phosphorylation__dephosphorylation
+2025-08-29 20:14:39.30948 INFO::Final formula: ~,expr,diagnosis + PWY_5097_L_lysine_biosyn_VI
+2025-08-29 20:14:39.309888 INFO::Metadata items: diagnosis, PWY_5097_L_lysine_biosyn_VI
+2025-08-29 20:14:39.311436 INFO::Final formula: ~,expr,diagnosis + PWY_5100_pyruvate_fermentation_to_acetate__lactate_II
+2025-08-29 20:14:39.311855 INFO::Metadata items: diagnosis, PWY_5100_pyruvate_fermentation_to_acetate__lactate_II
+2025-08-29 20:14:39.313392 INFO::Final formula: ~,expr,diagnosis + PWY_5101_L_isoleucine_biosyn_II
+2025-08-29 20:14:39.313751 INFO::Metadata items: diagnosis, PWY_5101_L_isoleucine_biosyn_II
+2025-08-29 20:14:39.315409 INFO::Final formula: ~,expr,diagnosis + PWY_5103_L_isoleucine_biosyn_III
+2025-08-29 20:14:39.315768 INFO::Metadata items: diagnosis, PWY_5103_L_isoleucine_biosyn_III
+2025-08-29 20:14:39.317287 INFO::Final formula: ~,expr,diagnosis + PWY_5104_L_isoleucine_biosyn_IV
+2025-08-29 20:14:39.317641 INFO::Metadata items: diagnosis, PWY_5104_L_isoleucine_biosyn_IV
+2025-08-29 20:14:39.319241 INFO::Final formula: ~,expr,diagnosis + PWY_5154_L_arginine_biosyn_III
+2025-08-29 20:14:39.31963 INFO::Metadata items: diagnosis, PWY_5154_L_arginine_biosyn_III
+2025-08-29 20:14:39.321195 INFO::Final formula: ~,expr,diagnosis + PWY_5173_SP_of_acetyl_CoA_biosyn
+2025-08-29 20:14:39.321563 INFO::Metadata items: diagnosis, PWY_5173_SP_of_acetyl_CoA_biosyn
+2025-08-29 20:14:39.323262 INFO::Final formula: ~,expr,diagnosis + PWY_5177_glutaryl_CoA_deg
+2025-08-29 20:14:39.32367 INFO::Metadata items: diagnosis, PWY_5177_glutaryl_CoA_deg
+2025-08-29 20:14:39.325264 INFO::Final formula: ~,expr,diagnosis + PWY_5188_tetrapyrrole_biosyn_I
+2025-08-29 20:14:39.325635 INFO::Metadata items: diagnosis, PWY_5188_tetrapyrrole_biosyn_I
+2025-08-29 20:14:39.327165 INFO::Final formula: ~,expr,diagnosis + PWY_5347_SP_of_L_methionine_biosyn
+2025-08-29 20:14:39.327525 INFO::Metadata items: diagnosis, PWY_5347_SP_of_L_methionine_biosyn
+2025-08-29 20:14:39.329011 INFO::Final formula: ~,expr,diagnosis + PWY_5484_glycolysis_II
+2025-08-29 20:14:39.329374 INFO::Metadata items: diagnosis, PWY_5484_glycolysis_II
+2025-08-29 20:14:39.330938 INFO::Final formula: ~,expr,diagnosis + PWY_5659_GDP_mannose_biosyn
+2025-08-29 20:14:39.331323 INFO::Metadata items: diagnosis, PWY_5659_GDP_mannose_biosyn
+2025-08-29 20:14:39.332903 INFO::Final formula: ~,expr,diagnosis + PWY_5667_CDP_diacylglycerol_biosyn_I
+2025-08-29 20:14:39.333275 INFO::Metadata items: diagnosis, PWY_5667_CDP_diacylglycerol_biosyn_I
+2025-08-29 20:14:39.334935 INFO::Final formula: ~,expr,diagnosis + PWY_5676_acetyl_CoA_fermentation_to_butanoate_II
+2025-08-29 20:14:39.335313 INFO::Metadata items: diagnosis, PWY_5676_acetyl_CoA_fermentation_to_butanoate_II
+2025-08-29 20:14:39.336885 INFO::Final formula: ~,expr,diagnosis + PWY_5686_UMP_biosyn
+2025-08-29 20:14:39.337248 INFO::Metadata items: diagnosis, PWY_5686_UMP_biosyn
+2025-08-29 20:14:39.338843 INFO::Final formula: ~,expr,diagnosis + PWY_5690_TCA_cyc_II
+2025-08-29 20:14:39.339223 INFO::Metadata items: diagnosis, PWY_5690_TCA_cyc_II
+2025-08-29 20:14:39.340856 INFO::Final formula: ~,expr,diagnosis + PWY_5695_urate_biosyn_inosine_5_phosphate_deg
+2025-08-29 20:14:39.341223 INFO::Metadata items: diagnosis, PWY_5695_urate_biosyn_inosine_5_phosphate_deg
+2025-08-29 20:14:39.342759 INFO::Final formula: ~,expr,diagnosis + PWY_5723_Rubisco_shunt
+2025-08-29 20:14:39.343115 INFO::Metadata items: diagnosis, PWY_5723_Rubisco_shunt
+2025-08-29 20:14:39.344642 INFO::Final formula: ~,expr,diagnosis + PWY_5913_TCA_cyc_VI
+2025-08-29 20:14:39.344982 INFO::Metadata items: diagnosis, PWY_5913_TCA_cyc_VI
+2025-08-29 20:14:39.346505 INFO::Final formula: ~,expr,diagnosis + PWY_5971_palmitate_biosyn_II
+2025-08-29 20:14:39.346857 INFO::Metadata items: diagnosis, PWY_5971_palmitate_biosyn_II
+2025-08-29 20:14:39.348553 INFO::Final formula: ~,expr,diagnosis + PWY_5973_cis_vaccenate_biosyn
+2025-08-29 20:14:39.348935 INFO::Metadata items: diagnosis, PWY_5973_cis_vaccenate_biosyn
+2025-08-29 20:14:39.350542 INFO::Final formula: ~,expr,diagnosis + PWY_5989_stearate_biosyn_II
+2025-08-29 20:14:39.35089 INFO::Metadata items: diagnosis, PWY_5989_stearate_biosyn_II
+2025-08-29 20:14:39.352402 INFO::Final formula: ~,expr,diagnosis + PWY_6121_5_aminoimidazole_rnt_biosyn_I
+2025-08-29 20:14:39.352764 INFO::Metadata items: diagnosis, PWY_6121_5_aminoimidazole_rnt_biosyn_I
+2025-08-29 20:14:39.354385 INFO::Final formula: ~,expr,diagnosis + PWY_6122_5_aminoimidazole_rnt_biosyn_II
+2025-08-29 20:14:39.354749 INFO::Metadata items: diagnosis, PWY_6122_5_aminoimidazole_rnt_biosyn_II
+2025-08-29 20:14:39.356233 INFO::Final formula: ~,expr,diagnosis + PWY_6123_inosine_5_phosphate_biosyn_I
+2025-08-29 20:14:39.356588 INFO::Metadata items: diagnosis, PWY_6123_inosine_5_phosphate_biosyn_I
+2025-08-29 20:14:39.358104 INFO::Final formula: ~,expr,diagnosis + PWY_6124_inosine_5_phosphate_biosyn_II
+2025-08-29 20:14:39.358454 INFO::Metadata items: diagnosis, PWY_6124_inosine_5_phosphate_biosyn_II
+2025-08-29 20:14:39.359992 INFO::Final formula: ~,expr,diagnosis + PWY_6125_SP_of_guanosine_nt_de_novo_biosyn_II
+2025-08-29 20:14:39.36034 INFO::Metadata items: diagnosis, PWY_6125_SP_of_guanosine_nt_de_novo_biosyn_II
+2025-08-29 20:14:39.361866 INFO::Final formula: ~,expr,diagnosis + PWY_6126_SP_of_adenosine_nt_de_novo_biosyn_II
+2025-08-29 20:14:39.362216 INFO::Metadata items: diagnosis, PWY_6126_SP_of_adenosine_nt_de_novo_biosyn_II
+2025-08-29 20:14:39.36377 INFO::Final formula: ~,expr,diagnosis + PWY_6147_6_hydroxymethyl_dihydropterin_diphosphate_biosyn_I
+2025-08-29 20:14:39.364135 INFO::Metadata items: diagnosis, PWY_6147_6_hydroxymethyl_dihydropterin_diphosphate_biosyn_I
+2025-08-29 20:14:39.365711 INFO::Final formula: ~,expr,diagnosis + PWY_6151_S_adenosyl_L_methionine_cyc_I
+2025-08-29 20:14:39.366204 INFO::Metadata items: diagnosis, PWY_6151_S_adenosyl_L_methionine_cyc_I
+2025-08-29 20:14:39.367984 INFO::Final formula: ~,expr,diagnosis + PWY_6163_chorismate_biosyn_from_3_dehydroquinate
+2025-08-29 20:14:39.368373 INFO::Metadata items: diagnosis, PWY_6163_chorismate_biosyn_from_3_dehydroquinate
+2025-08-29 20:14:39.369926 INFO::Final formula: ~,expr,diagnosis + PWY_6168_flavin_biosyn_III
+2025-08-29 20:14:39.370278 INFO::Metadata items: diagnosis, PWY_6168_flavin_biosyn_III
+2025-08-29 20:14:39.372003 INFO::Final formula: ~,expr,diagnosis + PWY_621_sucrose_deg_III
+2025-08-29 20:14:39.37237 INFO::Metadata items: diagnosis, PWY_621_sucrose_deg_III
+2025-08-29 20:14:39.37396 INFO::Final formula: ~,expr,diagnosis + PWY_6270_isoprene_biosyn_I
+2025-08-29 20:14:39.374322 INFO::Metadata items: diagnosis, PWY_6270_isoprene_biosyn_I
+2025-08-29 20:14:39.375887 INFO::Final formula: ~,expr,diagnosis + PWY_6277_SP_of_5_aminoimidazole_rnt_biosyn
+2025-08-29 20:14:39.376236 INFO::Metadata items: diagnosis, PWY_6277_SP_of_5_aminoimidazole_rnt_biosyn
+2025-08-29 20:14:39.377794 INFO::Final formula: ~,expr,diagnosis + PWY_6282_palmitoleate_biosyn_I
+2025-08-29 20:14:39.37814 INFO::Metadata items: diagnosis, PWY_6282_palmitoleate_biosyn_I
+2025-08-29 20:14:39.379735 INFO::Final formula: ~,expr,diagnosis + PWY_6317_galactose_deg_I
+2025-08-29 20:14:39.380099 INFO::Metadata items: diagnosis, PWY_6317_galactose_deg_I
+2025-08-29 20:14:39.381828 INFO::Final formula: ~,expr,diagnosis + PWY_6353_purine_nt_deg_II
+2025-08-29 20:14:39.382214 INFO::Metadata items: diagnosis, PWY_6353_purine_nt_deg_II
+2025-08-29 20:14:39.384046 INFO::Final formula: ~,expr,diagnosis + PWY_6385_peptidoglycan_biosyn_III
+2025-08-29 20:14:39.38445 INFO::Metadata items: diagnosis, PWY_6385_peptidoglycan_biosyn_III
+2025-08-29 20:14:39.386062 INFO::Final formula: ~,expr,diagnosis + PWY_6386_UDP_N_acetylmuramoyl_pentapeptide_biosyn_II
+2025-08-29 20:14:39.386439 INFO::Metadata items: diagnosis, PWY_6386_UDP_N_acetylmuramoyl_pentapeptide_biosyn_II
+2025-08-29 20:14:39.38814 INFO::Final formula: ~,expr,diagnosis + PWY_6387_UDP_N_acetylmuramoyl_pentapeptide_biosyn_I
+2025-08-29 20:14:39.38851 INFO::Metadata items: diagnosis, PWY_6387_UDP_N_acetylmuramoyl_pentapeptide_biosyn_I
+2025-08-29 20:14:39.400895 INFO::Final formula: ~,expr,diagnosis + PWY_6507_4_deoxy_L_threo_hex_4_enopyranuronate_deg
+2025-08-29 20:14:39.401469 INFO::Metadata items: diagnosis, PWY_6507_4_deoxy_L_threo_hex_4_enopyranuronate_deg
+2025-08-29 20:14:39.403234 INFO::Final formula: ~,expr,diagnosis + PWY_6527_stachyose_deg
+2025-08-29 20:14:39.403613 INFO::Metadata items: diagnosis, PWY_6527_stachyose_deg
+2025-08-29 20:14:39.405251 INFO::Final formula: ~,expr,diagnosis + PWY_6545_pyrimidine_dnt_de_novo_biosyn_III
+2025-08-29 20:14:39.405612 INFO::Metadata items: diagnosis, PWY_6545_pyrimidine_dnt_de_novo_biosyn_III
+2025-08-29 20:14:39.407144 WARNING::Feature name not found in dnadata so not applied to formula with effects: diagnosis
+2025-08-29 20:14:39.407942 INFO::Final formula: ~,expr,diagnosis + PWY_6608_guanosine_nt_deg_III
+2025-08-29 20:14:39.408296 INFO::Metadata items: diagnosis, PWY_6608_guanosine_nt_deg_III
+2025-08-29 20:14:39.409881 INFO::Final formula: ~,expr,diagnosis + PWY_6609_adenine__adenosine_salvage_III
+2025-08-29 20:14:39.410254 INFO::Metadata items: diagnosis, PWY_6609_adenine__adenosine_salvage_III
+2025-08-29 20:14:39.411841 INFO::Final formula: ~,expr,diagnosis + PWY_6700_queuosine_biosyn
+2025-08-29 20:14:39.412205 INFO::Metadata items: diagnosis, PWY_6700_queuosine_biosyn
+2025-08-29 20:14:39.414003 INFO::Final formula: ~,expr,diagnosis + PWY_6703_preQ0_biosyn
+2025-08-29 20:14:39.414374 INFO::Metadata items: diagnosis, PWY_6703_preQ0_biosyn
+2025-08-29 20:14:39.416238 INFO::Final formula: ~,expr,diagnosis + PWY_6737_starch_deg_V
+2025-08-29 20:14:39.416622 INFO::Metadata items: diagnosis, PWY_6737_starch_deg_V
+2025-08-29 20:14:39.418257 INFO::Final formula: ~,expr,diagnosis + PWY_6897_thiamin_salvage_II
+2025-08-29 20:14:39.41861 INFO::Metadata items: diagnosis, PWY_6897_thiamin_salvage_II
+2025-08-29 20:14:39.420274 INFO::Final formula: ~,expr,diagnosis + PWY_6901_SP_of_glucose__xylose_deg
+2025-08-29 20:14:39.420659 INFO::Metadata items: diagnosis, PWY_6901_SP_of_glucose__xylose_deg
+2025-08-29 20:14:39.422201 INFO::Final formula: ~,expr,diagnosis + PWY_6936_seleno_amino_acid_biosyn
+2025-08-29 20:14:39.422544 INFO::Metadata items: diagnosis, PWY_6936_seleno_amino_acid_biosyn
+2025-08-29 20:14:39.424173 INFO::Final formula: ~,expr,diagnosis + PWY_6969_TCA_cyc_V
+2025-08-29 20:14:39.424536 INFO::Metadata items: diagnosis, PWY_6969_TCA_cyc_V
+2025-08-29 20:14:39.42615 INFO::Final formula: ~,expr,diagnosis + PWY_7111_pyruvate_fermentation_to_isobutanol
+2025-08-29 20:14:39.426511 INFO::Metadata items: diagnosis, PWY_7111_pyruvate_fermentation_to_isobutanol
+2025-08-29 20:14:39.428199 INFO::Final formula: ~,expr,diagnosis + PWY_7184_pyrimidine_dnt_de_novo_biosyn_I
+2025-08-29 20:14:39.428565 INFO::Metadata items: diagnosis, PWY_7184_pyrimidine_dnt_de_novo_biosyn_I
+2025-08-29 20:14:39.430185 INFO::Final formula: ~,expr,diagnosis + PWY_7187_pyrimidine_dnt_de_novo_biosyn_II
+2025-08-29 20:14:39.430549 INFO::Metadata items: diagnosis, PWY_7187_pyrimidine_dnt_de_novo_biosyn_II
+2025-08-29 20:14:39.432662 INFO::Final formula: ~,expr,diagnosis + PWY_7196_SP_of_pyrimidine_rns_salvage
+2025-08-29 20:14:39.433024 INFO::Metadata items: diagnosis, PWY_7196_SP_of_pyrimidine_rns_salvage
+2025-08-29 20:14:39.43467 INFO::Final formula: ~,expr,diagnosis + PWY_7197_pyrimidine_dnt_phosphorylation
+2025-08-29 20:14:39.435035 INFO::Metadata items: diagnosis, PWY_7197_pyrimidine_dnt_phosphorylation
+2025-08-29 20:14:39.436686 INFO::Final formula: ~,expr,diagnosis + PWY_7199_pyrimidine_dns_salvage
+2025-08-29 20:14:39.437053 INFO::Metadata items: diagnosis, PWY_7199_pyrimidine_dns_salvage
+2025-08-29 20:14:39.43857 INFO::Final formula: ~,expr,diagnosis + PWY_7208_SP_of_pyrimidine_nucleobases_salvage
+2025-08-29 20:14:39.438899 INFO::Metadata items: diagnosis, PWY_7208_SP_of_pyrimidine_nucleobases_salvage
+2025-08-29 20:14:39.44058 INFO::Final formula: ~,expr,diagnosis + PWY_7211_SP_of_pyrimidine_dnt_de_novo_biosyn
+2025-08-29 20:14:39.440933 INFO::Metadata items: diagnosis, PWY_7211_SP_of_pyrimidine_dnt_de_novo_biosyn
+2025-08-29 20:14:39.442516 INFO::Final formula: ~,expr,diagnosis + PWY_7219_adenosine_rnt_de_novo_biosyn
+2025-08-29 20:14:39.442863 INFO::Metadata items: diagnosis, PWY_7219_adenosine_rnt_de_novo_biosyn
+2025-08-29 20:14:39.444432 INFO::Final formula: ~,expr,diagnosis + PWY_7220_adenosine_dnt_de_novo_biosyn_II
+2025-08-29 20:14:39.444774 INFO::Metadata items: diagnosis, PWY_7220_adenosine_dnt_de_novo_biosyn_II
+2025-08-29 20:14:39.446359 INFO::Final formula: ~,expr,diagnosis + PWY_7221_guanosine_rnt_de_novo_biosyn
+2025-08-29 20:14:39.446781 INFO::Metadata items: diagnosis, PWY_7221_guanosine_rnt_de_novo_biosyn
+2025-08-29 20:14:39.448871 INFO::Final formula: ~,expr,diagnosis + PWY_7222_guanosine_dnt_de_novo_biosyn_II
+2025-08-29 20:14:39.449327 INFO::Metadata items: diagnosis, PWY_7222_guanosine_dnt_de_novo_biosyn_II
+2025-08-29 20:14:39.451055 INFO::Final formula: ~,expr,diagnosis + PWY_7228_SP_of_guanosine_nt_de_novo_biosyn_I
+2025-08-29 20:14:39.451435 INFO::Metadata items: diagnosis, PWY_7228_SP_of_guanosine_nt_de_novo_biosyn_I
+2025-08-29 20:14:39.453092 INFO::Final formula: ~,expr,diagnosis + PWY_7229_SP_of_adenosine_nt_de_novo_biosyn_I
+2025-08-29 20:14:39.453459 INFO::Metadata items: diagnosis, PWY_7229_SP_of_adenosine_nt_de_novo_biosyn_I
+2025-08-29 20:14:39.455022 INFO::Final formula: ~,expr,diagnosis + PWY_7234_inosine_5_phosphate_biosyn_III
+2025-08-29 20:14:39.455388 INFO::Metadata items: diagnosis, PWY_7234_inosine_5_phosphate_biosyn_III
+2025-08-29 20:14:39.457214 INFO::Final formula: ~,expr,diagnosis + PWY_7237_myo__chiro__scillo_inositol_deg
+2025-08-29 20:14:39.457626 INFO::Metadata items: diagnosis, PWY_7237_myo__chiro__scillo_inositol_deg
+2025-08-29 20:14:39.459315 INFO::Final formula: ~,expr,diagnosis + PWY_7242_D_fructuronate_deg
+2025-08-29 20:14:39.459677 INFO::Metadata items: diagnosis, PWY_7242_D_fructuronate_deg
+2025-08-29 20:14:39.461372 INFO::Final formula: ~,expr,diagnosis + PWY_724_SP_of_L_lysine_L_threonine__L_methionine_biosyn_II
+2025-08-29 20:14:39.461725 INFO::Metadata items: diagnosis, PWY_724_SP_of_L_lysine_L_threonine__L_methionine_biosyn_II
+2025-08-29 20:14:39.463279 WARNING::Feature name not found in dnadata so not applied to formula with effects: diagnosis
+2025-08-29 20:14:39.464184 INFO::Final formula: ~,expr,diagnosis + PWY_7282_4_amino_2_methyl_5_phosphomethylpyrimidine_biosyn
+2025-08-29 20:14:39.464833 INFO::Metadata items: diagnosis, PWY_7282_4_amino_2_methyl_5_phosphomethylpyrimidine_biosyn
+2025-08-29 20:14:39.466635 INFO::Final formula: ~,expr,diagnosis + PWY_7323_SP_of_GDP_mannose_derived_O_antigen_building_blocks_biosyn
+2025-08-29 20:14:39.467013 INFO::Metadata items: diagnosis, PWY_7323_SP_of_GDP_mannose_derived_O_antigen_building_blocks_biosyn
+2025-08-29 20:14:39.468515 WARNING::Feature name not found in dnadata so not applied to formula with effects: diagnosis
+2025-08-29 20:14:39.469273 INFO::Final formula: ~,expr,diagnosis + PWY_7357_thiamin_formation_from_pyrithiamine__oxythiamine
+2025-08-29 20:14:39.469634 INFO::Metadata items: diagnosis, PWY_7357_thiamin_formation_from_pyrithiamine__oxythiamine
+2025-08-29 20:14:39.471328 INFO::Final formula: ~,expr,diagnosis + PWY_7383_anaerobic_energy_metabolism
+2025-08-29 20:14:39.47168 INFO::Metadata items: diagnosis, PWY_7383_anaerobic_energy_metabolism
+2025-08-29 20:14:39.484088 INFO::Final formula: ~,expr,diagnosis + PWY_7388_octanoyl_acyl_carrier_protein_biosyn
+2025-08-29 20:14:39.484667 INFO::Metadata items: diagnosis, PWY_7388_octanoyl_acyl_carrier_protein_biosyn
+2025-08-29 20:14:39.48652 INFO::Final formula: ~,expr,diagnosis + PWY_7400_L_arginine_biosyn_IV
+2025-08-29 20:14:39.486926 INFO::Metadata items: diagnosis, PWY_7400_L_arginine_biosyn_IV
+2025-08-29 20:14:39.488646 INFO::Final formula: ~,expr,diagnosis + PWY_7456_mannan_deg
+2025-08-29 20:14:39.489016 INFO::Metadata items: diagnosis, PWY_7456_mannan_deg
+2025-08-29 20:14:39.490883 INFO::Final formula: ~,expr,diagnosis + PWY_7539_6_hydroxymethyl_dihydropterin_diphosphate_biosyn_III
+2025-08-29 20:14:39.491302 INFO::Metadata items: diagnosis, PWY_7539_6_hydroxymethyl_dihydropterin_diphosphate_biosyn_III
+2025-08-29 20:14:39.492994 INFO::Final formula: ~,expr,diagnosis + PWY_7560_methylerythritol_phosphate_pwy_II
+2025-08-29 20:14:39.493366 INFO::Metadata items: diagnosis, PWY_7560_methylerythritol_phosphate_pwy_II
+2025-08-29 20:14:39.495083 INFO::Final formula: ~,expr,diagnosis + PWY_7663_gondoate_biosyn
+2025-08-29 20:14:39.49545 INFO::Metadata items: diagnosis, PWY_7663_gondoate_biosyn
+2025-08-29 20:14:39.497407 INFO::Final formula: ~,expr,diagnosis + PWY_7664_oleate_biosyn_IV
+2025-08-29 20:14:39.497806 INFO::Metadata items: diagnosis, PWY_7664_oleate_biosyn_IV
+2025-08-29 20:14:39.49966 INFO::Final formula: ~,expr,diagnosis + PWY_841_SP_of_purine_nt_de_novo_biosyn_I
+2025-08-29 20:14:39.500078 INFO::Metadata items: diagnosis, PWY_841_SP_of_purine_nt_de_novo_biosyn_I
+2025-08-29 20:14:39.501703 INFO::Final formula: ~,expr,diagnosis + PWY0_1261_anhydromuropeptides_recycling
+2025-08-29 20:14:39.502074 INFO::Metadata items: diagnosis, PWY0_1261_anhydromuropeptides_recycling
+2025-08-29 20:14:39.503834 INFO::Final formula: ~,expr,diagnosis + PWY0_1296_purine_rns_deg
+2025-08-29 20:14:39.504181 INFO::Metadata items: diagnosis, PWY0_1296_purine_rns_deg
+2025-08-29 20:14:39.505769 INFO::Final formula: ~,expr,diagnosis + PWY0_1297_SP_of_purine_dns_deg
+2025-08-29 20:14:39.506137 INFO::Metadata items: diagnosis, PWY0_1297_SP_of_purine_dns_deg
+2025-08-29 20:14:39.507795 INFO::Final formula: ~,expr,diagnosis + PWY0_1298_SP_of_pyrimidine_dns_deg
+2025-08-29 20:14:39.508139 INFO::Metadata items: diagnosis, PWY0_1298_SP_of_pyrimidine_dns_deg
+2025-08-29 20:14:39.509785 INFO::Final formula: ~,expr,diagnosis + PWY0_1319_CDP_diacylglycerol_biosyn_II
+2025-08-29 20:14:39.510143 INFO::Metadata items: diagnosis, PWY0_1319_CDP_diacylglycerol_biosyn_II
+2025-08-29 20:14:39.511894 INFO::Final formula: ~,expr,diagnosis + PWY0_1479_tRNA_processing
+2025-08-29 20:14:39.512262 INFO::Metadata items: diagnosis, PWY0_1479_tRNA_processing
+2025-08-29 20:14:39.530208 INFO::Final formula: ~,expr,diagnosis + PWY0_1586_peptidoglycan_maturation
+2025-08-29 20:14:39.535358 INFO::Metadata items: diagnosis, PWY0_1586_peptidoglycan_maturation
+2025-08-29 20:14:39.542205 INFO::Final formula: ~,expr,diagnosis + PWY0_162_SP_of_pyrimidine_rnt_de_novo_biosyn
+2025-08-29 20:14:39.542707 INFO::Metadata items: diagnosis, PWY0_162_SP_of_pyrimidine_rnt_de_novo_biosyn
+2025-08-29 20:14:39.54474 INFO::Final formula: ~,expr,diagnosis + PWY0_166_SP_of_pyrimidine_dnt_de_novo_biosyn
+2025-08-29 20:14:39.545164 INFO::Metadata items: diagnosis, PWY0_166_SP_of_pyrimidine_dnt_de_novo_biosyn
+2025-08-29 20:14:39.550801 INFO::Final formula: ~,expr,diagnosis + PWY0_845_SP_of_pyridoxal_5_phosphate_biosyn__salvage
+2025-08-29 20:14:39.551785 INFO::Metadata items: diagnosis, PWY0_845_SP_of_pyridoxal_5_phosphate_biosyn__salvage
+2025-08-29 20:14:39.554234 INFO::Final formula: ~,expr,diagnosis + PWY0_862_dodec_5_enoate_biosyn
+2025-08-29 20:14:39.55466 INFO::Metadata items: diagnosis, PWY0_862_dodec_5_enoate_biosyn
+2025-08-29 20:14:39.556555 INFO::Final formula: ~,expr,diagnosis + PWY4FS_7_phosphatidylglycerol_biosyn_I
+2025-08-29 20:14:39.556993 INFO::Metadata items: diagnosis, PWY4FS_7_phosphatidylglycerol_biosyn_I
+2025-08-29 20:14:39.558769 INFO::Final formula: ~,expr,diagnosis + PWY4FS_8_phosphatidylglycerol_biosyn_II
+2025-08-29 20:14:39.559143 INFO::Metadata items: diagnosis, PWY4FS_8_phosphatidylglycerol_biosyn_II
+2025-08-29 20:14:39.561055 INFO::Final formula: ~,expr,diagnosis + PWY66_399_gluconeogenesis_III
+2025-08-29 20:14:39.561421 INFO::Metadata items: diagnosis, PWY66_399_gluconeogenesis_III
+2025-08-29 20:14:39.563093 INFO::Final formula: ~,expr,diagnosis + PWY66_400_glycolysis_VI
+2025-08-29 20:14:39.563447 INFO::Metadata items: diagnosis, PWY66_400_glycolysis_VI
+2025-08-29 20:14:39.565455 INFO::Final formula: ~,expr,diagnosis + PWY66_409_SP_of_purine_nt_salvage
+2025-08-29 20:14:39.565834 INFO::Metadata items: diagnosis, PWY66_409_SP_of_purine_nt_salvage
+2025-08-29 20:14:39.56765 INFO::Final formula: ~,expr,diagnosis + PWY66_422_D_galactose_deg_V
+2025-08-29 20:14:39.568035 INFO::Metadata items: diagnosis, PWY66_422_D_galactose_deg_V
+2025-08-29 20:14:39.569806 INFO::Final formula: ~,expr,diagnosis + PWYG_321_mycolate_biosyn
+2025-08-29 20:14:39.570139 INFO::Metadata items: diagnosis, PWYG_321_mycolate_biosyn
+2025-08-29 20:14:39.571864 INFO::Final formula: ~,expr,diagnosis + PYRIDNUCSYN_PWY_NAD_biosyn_I
+2025-08-29 20:14:39.572202 INFO::Metadata items: diagnosis, PYRIDNUCSYN_PWY_NAD_biosyn_I
+2025-08-29 20:14:39.573973 INFO::Final formula: ~,expr,diagnosis + PYRIDOXSYN_PWY_pyridoxal_5_phosphate_biosyn_I
+2025-08-29 20:14:39.574355 INFO::Metadata items: diagnosis, PYRIDOXSYN_PWY_pyridoxal_5_phosphate_biosyn_I
+2025-08-29 20:14:39.576107 INFO::Final formula: ~,expr,diagnosis + RHAMCAT_PWY_L_rhamnose_deg_I
+2025-08-29 20:14:39.57646 INFO::Metadata items: diagnosis, RHAMCAT_PWY_L_rhamnose_deg_I
+2025-08-29 20:14:39.589438 INFO::Final formula: ~,expr,diagnosis + RIBOSYN2_PWY_flavin_biosyn_I
+2025-08-29 20:14:39.590067 INFO::Metadata items: diagnosis, RIBOSYN2_PWY_flavin_biosyn_I
+2025-08-29 20:14:39.591992 INFO::Final formula: ~,expr,diagnosis + SALVADEHYPOX_PWY_adenosine_nt_deg_II
+2025-08-29 20:14:39.592432 INFO::Metadata items: diagnosis, SALVADEHYPOX_PWY_adenosine_nt_deg_II
+2025-08-29 20:14:39.594413 INFO::Final formula: ~,expr,diagnosis + SER_GLYSYN_PWY_SP_of_L_serine__glycine_biosyn_I
+2025-08-29 20:14:39.594867 INFO::Metadata items: diagnosis, SER_GLYSYN_PWY_SP_of_L_serine__glycine_biosyn_I
+2025-08-29 20:14:39.596511 INFO::Final formula: ~,expr,diagnosis + TCA_GLYOX_BYPASS_SP_of_glyoxylate_bypass__TCA
+2025-08-29 20:14:39.596868 INFO::Metadata items: diagnosis, TCA_GLYOX_BYPASS_SP_of_glyoxylate_bypass__TCA
+2025-08-29 20:14:39.598519 INFO::Final formula: ~,expr,diagnosis + TCA_TCA_cyc_I
+2025-08-29 20:14:39.59886 INFO::Metadata items: diagnosis, TCA_TCA_cyc_I
+2025-08-29 20:14:39.600486 INFO::Final formula: ~,expr,diagnosis + THISYNARA_PWY_SP_of_thiamin_diphosphate_biosyn_III
+2025-08-29 20:14:39.600829 INFO::Metadata items: diagnosis, THISYNARA_PWY_SP_of_thiamin_diphosphate_biosyn_III
+2025-08-29 20:14:39.602715 INFO::Final formula: ~,expr,diagnosis + THRESYN_PWY_SP_of_L_threonine_biosyn
+2025-08-29 20:14:39.603114 INFO::Metadata items: diagnosis, THRESYN_PWY_SP_of_L_threonine_biosyn
+2025-08-29 20:14:39.604817 INFO::Final formula: ~,expr,diagnosis + TRNA_CHARGING_PWY_tRNA_charging
+2025-08-29 20:14:39.605218 INFO::Metadata items: diagnosis, TRNA_CHARGING_PWY_tRNA_charging
+2025-08-29 20:14:39.606973 INFO::Final formula: ~,expr,diagnosis + UDPNAGSYN_PWY_UDP_N_acetyl_D_glucosamine_biosyn_I
+2025-08-29 20:14:39.60734 INFO::Metadata items: diagnosis, UDPNAGSYN_PWY_UDP_N_acetyl_D_glucosamine_biosyn_I
+2025-08-29 20:14:39.609135 INFO::Final formula: ~,expr,diagnosis + VALSYN_PWY_L_valine_biosyn
+2025-08-29 20:14:39.609489 INFO::Metadata items: diagnosis, VALSYN_PWY_L_valine_biosyn
+2025-08-29 20:14:39.617734 INFO::Counting total values for each feature
+2025-08-29 20:14:39.623454 WARNING::Deleting existing residuals file: ../Datasets/demo_output_rna_dna/residuals.rds
+2025-08-29 20:14:39.62414 INFO::Writing residuals to file ../Datasets/demo_output_rna_dna/residuals.rds
+2025-08-29 20:14:39.646149 WARNING::Deleting existing fitted file: ../Datasets/demo_output_rna_dna/fitted.rds
+2025-08-29 20:14:39.646966 INFO::Writing fitted values to file ../Datasets/demo_output_rna_dna/fitted.rds
+2025-08-29 20:14:39.667443 INFO::Writing all results to file (ordered by increasing q-values): ../Datasets/demo_output_rna_dna/all_results.tsv.tmp
+2025-08-29 20:14:39.669728 INFO::Writing the significant results (those which are less than or equal to the threshold of 0.250000 ) to file (ordered by increasing q-values): ../Datasets/demo_output_rna_dna/significant_results.tsv.tmp
+2025-08-29 20:14:39.674765 INFO::Writing heatmap of significant results to file: ../Datasets/demo_output_rna_dna/heatmap.pdf
+2025-08-29 20:14:39.675846 INFO::Writing association plots (one for each significant association) to output folder: ../Datasets/demo_output_rna_dna
+2025-08-29 20:14:39.677441 INFO::Plotting associations from most to least significant, grouped by metadata
+2025-08-29 20:14:39.677831 INFO::Plotting data for metadata number 1, diagnosis
+2025-08-29 20:14:39.678709 INFO::Creating boxplot for categorical data, diagnosis vs RIBOSYN2_PWY_flavin_biosyn_I
+2025-08-29 20:14:39.773837 INFO::Creating boxplot for categorical data, diagnosis vs PWY_7199_pyrimidine_dns_salvage
+2025-08-29 20:14:39.98172 INFO::Creating boxplot for categorical data, diagnosis vs SER_GLYSYN_PWY_SP_of_L_serine__glycine_biosyn_I
+2025-08-29 20:14:40.045548 INFO::Creating boxplot for categorical data, diagnosis vs PWY_5690_TCA_cyc_II
+2025-08-29 20:14:40.112539 INFO::Creating boxplot for categorical data, diagnosis vs COA_PWY_coenzyme_A_biosyn_I
+2025-08-29 20:14:40.178211 INFO::Creating boxplot for categorical data, diagnosis vs P105_PWY_TCA_cyc_IV
+2025-08-29 20:14:40.235742 INFO::Creating boxplot for categorical data, diagnosis vs PWY_7229_SP_of_adenosine_nt_de_novo_biosyn_I
+2025-08-29 20:14:40.300858 INFO::Creating boxplot for categorical data, diagnosis vs PWY0_1296_purine_rns_deg
+2025-08-29 20:14:40.358743 INFO::Creating boxplot for categorical data, diagnosis vs PWY_1269_CMP_3_deoxy_D_manno_octulosonate_biosyn_I
+2025-08-29 20:14:40.42626 INFO::Creating boxplot for categorical data, diagnosis vs PWY_4242_pantothenate__coenzyme_A_biosyn_III
+2025-08-29 20:14:40.48447 INFO::Creating boxplot for categorical data, diagnosis vs PWY_6163_chorismate_biosyn_from_3_dehydroquinate
+2025-08-29 20:14:40.550857 INFO::Creating boxplot for categorical data, diagnosis vs PWY_6901_SP_of_glucose__xylose_deg
+2025-08-29 20:14:40.633982 INFO::Creating boxplot for categorical data, diagnosis vs PWY66_422_D_galactose_deg_V
+2025-08-29 20:14:40.700159 INFO::Creating boxplot for categorical data, diagnosis vs PANTOSYN_PWY_pantothenate__coenzyme_A_biosyn_I
+2025-08-29 20:14:40.915504 INFO::Creating boxplot for categorical data, diagnosis vs FUCCAT_PWY_fucose_deg
+2025-08-29 20:14:40.983905 INFO::Creating boxplot for categorical data, diagnosis vs PWY_6700_queuosine_biosyn
+2025-08-29 20:14:41.053186 INFO::Creating boxplot for categorical data, diagnosis vs PWY_621_sucrose_deg_III
+2025-08-29 20:14:41.111355 INFO::Creating boxplot for categorical data, diagnosis vs PWY_7220_adenosine_dnt_de_novo_biosyn_II
+2025-08-29 20:14:41.178492 INFO::Creating boxplot for categorical data, diagnosis vs PWY_7222_guanosine_dnt_de_novo_biosyn_II
+2025-08-29 20:14:41.236286 INFO::Creating boxplot for categorical data, diagnosis vs PWY_6126_SP_of_adenosine_nt_de_novo_biosyn_II
+2025-08-29 20:14:41.305157 INFO::Creating boxplot for categorical data, diagnosis vs PWY_5676_acetyl_CoA_fermentation_to_butanoate_II
+2025-08-29 20:14:41.373894 INFO::Creating boxplot for categorical data, diagnosis vs PWY_5100_pyruvate_fermentation_to_acetate__lactate_II
+2025-08-29 20:14:41.431427 INFO::Creating boxplot for categorical data, diagnosis vs PWY_6527_stachyose_deg
+2025-08-29 20:14:41.49823 INFO::Creating boxplot for categorical data, diagnosis vs PWY_6317_galactose_deg_I
+2025-08-29 20:14:41.556124 INFO::Creating boxplot for categorical data, diagnosis vs GLUCUROCAT_PWY_SP_of_beta_D_glucuronide__D_glucuronate_deg
+2025-08-29 20:14:41.635228 INFO::Creating boxplot for categorical data, diagnosis vs COMPLETE_ARO_PWY_SP_of_aromatic_amino_acid_biosyn
+2025-08-29 20:14:41.693039 INFO::Creating boxplot for categorical data, diagnosis vs TCA_GLYOX_BYPASS_SP_of_glyoxylate_bypass__TCA
+2025-08-29 20:14:41.794431 INFO::Creating boxplot for categorical data, diagnosis vs PWY_6545_pyrimidine_dnt_de_novo_biosyn_III
+2025-08-29 20:14:41.985528 INFO::Creating boxplot for categorical data, diagnosis vs ARO_PWY_chorismate_biosyn_I
+2025-08-29 20:14:42.05097 INFO::Creating boxplot for categorical data, diagnosis vs TCA_TCA_cyc_I
+2025-08-29 20:14:42.120356 INFO::Creating boxplot for categorical data, diagnosis vs PWY_4984_urea_cyc
+2025-08-29 20:14:42.204274 INFO::Creating boxplot for categorical data, diagnosis vs PWY66_399_gluconeogenesis_III
+2025-08-29 20:14:42.273662 INFO::Creating boxplot for categorical data, diagnosis vs PWY_5030_L_histidine_deg_III
+2025-08-29 20:14:42.331168 INFO::Creating boxplot for categorical data, diagnosis vs GLYOXYLATE_BYPASS_glyoxylate_cyc
+2025-08-29 20:14:42.400473 INFO::Creating boxplot for categorical data, diagnosis vs PWY_5686_UMP_biosyn
+2025-08-29 20:14:42.457525 INFO::Creating boxplot for categorical data, diagnosis vs GALACT_GLUCUROCAT_PWY_SP_of_hexuronide__hexuronate_deg
+2025-08-29 20:14:42.527641 INFO::Creating boxplot for categorical data, diagnosis vs PWY_6125_SP_of_guanosine_nt_de_novo_biosyn_II
+2025-08-29 20:14:42.596394 INFO::Creating boxplot for categorical data, diagnosis vs PWY_6270_isoprene_biosyn_I
+2025-08-29 20:14:42.65462 INFO::Creating boxplot for categorical data, diagnosis vs PWY_5188_tetrapyrrole_biosyn_I
+2025-08-29 20:14:42.722325 INFO::Creating boxplot for categorical data, diagnosis vs PWY_5723_Rubisco_shunt
+2025-08-29 20:14:42.816958 INFO::Creating boxplot for categorical data, diagnosis vs DAPLYSINESYN_PWY_L_lysine_biosyn_I
+2025-08-29 20:14:43.008333 INFO::Creating boxplot for categorical data, diagnosis vs PWY_7560_methylerythritol_phosphate_pwy_II
+2025-08-29 20:14:43.0792 INFO::Creating boxplot for categorical data, diagnosis vs PWY_7456_mannan_deg
+2025-08-29 20:14:43.137502 INFO::Creating boxplot for categorical data, diagnosis vs PWY_6608_guanosine_nt_deg_III
+2025-08-29 20:14:43.205614 INFO::Creating boxplot for categorical data, diagnosis vs PWY_4981_L_proline_biosyn_II
+2025-08-29 20:14:43.263957 INFO::Creating boxplot for categorical data, diagnosis vs PYRIDNUCSYN_PWY_NAD_biosyn_I
+2025-08-29 20:14:43.333648 INFO::Creating boxplot for categorical data, diagnosis vs CALVIN_PWY_Calvin_Benson_Bassham_cyc
+2025-08-29 20:14:43.391557 INFO::Creating boxplot for categorical data, diagnosis vs GLCMANNANAUT_PWY_SP_of_N_acetylglucosamine_N_acetylmannosamine__N_acetylneuraminate_deg
+2025-08-29 20:14:43.461584 INFO::Creating boxplot for categorical data, diagnosis vs NONMEVIPP_PWY_methylerythritol_phosphate_pwy_I
+2025-08-29 20:14:43.530979 INFO::Creating boxplot for categorical data, diagnosis vs ANAGLYCOLYSIS_PWY_glycolysis_III
+2025-08-29 20:14:43.615718 INFO::Creating boxplot for categorical data, diagnosis vs PWY_7242_D_fructuronate_deg
+2025-08-29 20:14:43.685328 INFO::Creating boxplot for categorical data, diagnosis vs PWY_7219_adenosine_rnt_de_novo_biosyn
+2025-08-29 20:14:43.743401 INFO::Creating boxplot for categorical data, diagnosis vs PWY_7228_SP_of_guanosine_nt_de_novo_biosyn_I
+2025-08-29 20:14:43.849515 INFO::Creating boxplot for categorical data, diagnosis vs PWY_6122_5_aminoimidazole_rnt_biosyn_II
+2025-08-29 20:14:44.039698 INFO::Creating boxplot for categorical data, diagnosis vs PWY_6277_SP_of_5_aminoimidazole_rnt_biosyn
+2025-08-29 20:14:44.102239 INFO::Creating boxplot for categorical data, diagnosis vs PWY_7197_pyrimidine_dnt_phosphorylation
+2025-08-29 20:14:44.171716 INFO::Creating boxplot for categorical data, diagnosis vs PWY_7539_6_hydroxymethyl_dihydropterin_diphosphate_biosyn_III
+2025-08-29 20:14:44.241166 INFO::Creating boxplot for categorical data, diagnosis vs PHOSLIPSYN_PWY_SP_of_phospholipid_biosyn_I
+2025-08-29 20:14:44.299449 INFO::Creating boxplot for categorical data, diagnosis vs SALVADEHYPOX_PWY_adenosine_nt_deg_II
+2025-08-29 20:14:44.36878 INFO::Creating boxplot for categorical data, diagnosis vs PWY_6121_5_aminoimidazole_rnt_biosyn_I
+2025-08-29 20:14:44.427583 INFO::Creating boxplot for categorical data, diagnosis vs PYRIDOXSYN_PWY_pyridoxal_5_phosphate_biosyn_I
+2025-08-29 20:14:44.516772 INFO::Creating boxplot for categorical data, diagnosis vs PWY_6386_UDP_N_acetylmuramoyl_pentapeptide_biosyn_II

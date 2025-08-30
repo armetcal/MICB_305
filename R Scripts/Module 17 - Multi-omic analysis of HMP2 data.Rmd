@@ -1,32 +1,234 @@
 ---
 title: "Module 17 - Multi-omic analysis of HMP2 data"
 output: html_document
-date: "2025-08-28"
+author: "Adapted by Carolyn Forward"
 ---
 
-In this script, we will analyze the MetaCyc pathway data from the IBDMDB (HMP2) dataset. We will use the publicly available metagenomic and metatranscriptomic data files.
+In this script, we will analyze the MetaCyc pathway data from the IBDMDB (HMP2) dataset. We will use the publicly available metagenomic (MGX) and metatranscriptomic (MTX) data files.
 
 This module is based on the tutorial from the MTXmodel package: <https://biobakery.github.io/MTXmodel/articles/MTX_model_tutorial.html>.
 
-The MTX model package is designed to co-analyze metagenomic and metatranscriptomic data.
+The MTX model package is designed to analyze paired metagenomic and metatranscriptomic data.
 
 **Carolyn Forward** is credited with preprocessing the IBDMDB datasets used in this R markdown script and adapting the MTXmodel tutorial for this module. Thanks, Carolyn!
 
-```{r Load libraries and data files}
-library(devtools)
-install_github('biobakery/MTX_model')
+# ##########################################################
 
-library(tidyverse)
-library(MTXmodel)
+# MTX vs MGX tutorial script: modeling, ratios, and comparison
 
-mgx = read.delim("../Datasets/HMP2_pwyDNA.tsv", row.names = 1)
-mtx = read.delim("../Datasets/HMP2_pwyRNA.tsv", row.names = 1)
+Goal:
 
-# Examine data
-str(mgx)
-View(mgx)
-```
+1)  Load MTX (RNA), metadata, and MGX (DNA).
+
+2)  Fit a differential abundance model using MTXmodel:
+
+-   Tool is based on Maaslin2
+
+-   Test whether RNA abundances are different between groups
+
+-   Adjust for DNA abundance
+
+3)  Identify and plot the top features associated with Crohn's disease diagnosis.
+
+# ###########################################################
+
+------------------------------------------------------------------------
+
+# 0) Install dependencies
+
+------------------------------------------------------------------------
 
 ```{r}
+library(devtools)
+# Installs the MTX_model package from GitHub. Run once per environment.
+# After installation, you can comment this line to avoid reinstalling each session.
+# install_github('biobakery/MTX_model')
 
+library(Maaslin2)
+library(tidyverse)
+library(MTXmodel)
+```
+
+------------------------------------------------------------------------
+
+# 1) Load input files: RNA, metadata, and DNA
+
+------------------------------------------------------------------------
+
+MTXmodel requires three input files:
+
+1)  RNA feature table
+
+-   Tab-delimited file.
+
+-   Samples as rows, features as columns.
+
+2)  DNA covariate feature table
+
+-   Tab-delimited file.
+
+-   Samples as rows, features as columns.
+
+3)  Metadata file
+
+-   Tab-delimited file.
+
+-   Samples as rows, metadata variables as columns.
+
+The files provided were generated from the HMP2 data which can be downloaded from <https://ibdmdb.org/> .
+
+## RNA
+
+Metatranscriptomics; includes pathway RNA abundances for all samples.
+
+Recall: row.names = 1 uses the first column (sample IDs) as rownames.
+
+```{r}
+df_rna = read.table(file             = "../Datasets/HMP2_3.0_RNA.tsv",
+                           header           = TRUE,
+                           sep              = "\t", 
+                           row.names        = 1,
+                           stringsAsFactors = FALSE)
+df_rna[1:5, 1:5]
+```
+
+## DNA
+
+Metagenomics; includes pathway DNA abundances for all samples in the RNA table.
+
+```{r}
+df_dna = read.table(file             = "../Datasets/HMP2_3.0_DNA.tsv",
+                              header           = TRUE,
+                              sep              = "\t", 
+                              row.names        = 1,
+                              stringsAsFactors = FALSE)
+df_dna[1:5, 1:5]
+```
+
+## Metadata
+
+Samples as rows and metadata as columns.
+
+```{r}
+df_metadata = read.table(file             = "../Datasets/HMP2_3.0_metadata.tsv",
+                               header           = TRUE,
+                               sep              = "\t", 
+                               row.names        = 1,
+                               stringsAsFactors = FALSE)
+df_metadata[1:5, 1:5]
+
+# This data compares people with and without some form of IBD (either CD or UC)
+unique(df_metadata$diagnosis)
+```
+
+## Filter samples
+
+We will only include people with Crohn's disease (CD) or those without any form of inflammatory bowel disease (IBD).
+
+We will also remove anyone with active gut dysbiosis, as the dysbiosis may or may not be related to IBD. (You could also control for this variable, but we're keeping it simple here!)
+
+```{r}
+nrow(df_metadata)
+# First, filter the metadata table
+df_metadata = df_metadata %>% 
+  filter(diagnosis %in% c('nonIBD','CD'),
+         dysbiosis_binary == 'No') %>% 
+  # Setting as a factor so that Maaslin2 knows which level to use as the reference
+  # If you don't set a factor, default is alphabetical
+  mutate(diagnosis = factor(.$diagnosis, levels = c('nonIBD','CD')))
+nrow(df_metadata) # Removed around half the samples
+
+# Now filter the abundance datasets
+samples_to_keep = rownames(df_metadata)
+df_rna = df_rna[rownames(df_rna) %in% samples_to_keep, ]
+df_dna = df_dna[rownames(df_dna) %in% samples_to_keep, ]
+```
+
+# -----------------------------------------
+
+# 2) Fit model with Maaslin2 and MTXmodel
+
+Maaslin2 is a differential abundance tool like ANCOM-BC2 that is often used for metagenomic data.
+
+We will now run MTXmodel using the RNA abundance file as our input data. We will include the DNA abundance file in the `input_dnadata` option below, where the corresponding DNA abundance will be a covariable in the MaAsLin2 differential abundance model for each pathway.
+
+(If someone has a high abundance of a gene at the DNA level, we would expect them to have a higher RNA abundance for that gene. By including DNA as a covariate, we are adjusting for this relationship and identifying genes that have higher or lower RNA abundances than expected based on their DNA abundances.)
+
+-   MTXmodel jointly models RNA while using DNA as an adjusting matrix (per-feature).
+-   Note how the format is nearly identical to Maaslin2.
+-   FYI: using the RNA/DNA ratio provides surprisingly bad results (see the paper) - controlling for DNA as a variable, as we're doing here, is much better.
+
+```{r include=FALSE}
+fit_rna_dna <- MTXmodel(
+  input_data = df_rna,
+  input_metadata = df_metadata, 
+  output = '../Datasets/demo_output_rna_dna', # Outputs automatically save here
+  fixed_effects = c('diagnosis'),
+  transform = "LOG",
+  normalization = 'NONE',
+  input_dnadata = df_dna # DNA FILE GOES HERE
+)
+```
+
+# -------------------------------------------------------
+
+# 3) Assess outputs of the model
+
+## How many features were differentially abundant with respect to the diagnosis variable?
+
+```{r}
+# Extract the results table
+results_rna_dna = fit_rna_dna$results[fit_rna_dna$results$metadata=='diagnosis',]
+results_rna_dna$model = "RNA adjusted by DNA"
+
+# Extract sig pathways
+sig_rna_dna = subset(results_rna_dna, qval < 0.05) # qval = adjusted pval
+
+# 45 significant pathways
+nrow(sig_rna_dna) 
+
+# 27 are upregulated, 18 are downregulated
+table(upregulated = sig_rna_dna$coef > 0)
+```
+
+# ------------------------------------------------
+
+# 4) Visualization: effect sizes across the models
+
+Let's only plot the top 10 hits, since there are so many.
+
+```{r}
+# Ensure that the smallest pvalues (and by extension, q values) are at the top
+# Then take the first 10 rows with slice_head()
+top_10 = sig_rna_dna %>% arrange(pval) %>% slice_head(n=10)
+# top_10_2 = sig_rna_dna %>% arrange(pval) %>% .[c(1:10),] # same thing
+# identical(top_10,top_10_2)
+```
+
+Now we'll create one object that includes all the results, then subset it to to only include the pathways listed in top_10.
+
+```{r}
+# subset to selected features
+results = results_rna_dna[results_rna_dna$feature %in% top_10$feature, ] 
+
+# aes:
+#   x = coef (estimated effect size for diagnosis vs reference),
+#   y = feature (pathway),
+#   color = model (method used),
+#   shape = value (diagnosis level, e.g., CD, UC; reference is nonIBD).
+ggplot(results, aes(x = coef, y = feature)) +
+  geom_col() +
+  theme_classic()
+
+# Let's make another version where the features are arranged according to their effect size.
+# Otherwise, ggplot automatically puts them in alphabetical order.
+feature_order = results %>% arrange(coef) %>% pull(feature)
+results = results %>% mutate(feature = factor(.$feature, levels = feature_order))
+
+ggplot(results, aes(x = coef, y = feature)) +
+  geom_col() +
+  theme_classic()
+
+# Save the plot
+ggsave("../Results/Module 17 - Model Comparison.png", height = 5, width = 8)  # writes to current working directory
 ```

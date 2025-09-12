@@ -7,6 +7,10 @@ In this R Markdown script, we will practice the new R functions and tools shown 
 
 This will copy and expand on the commands shown in the slides.
 
+I recommend the following:
+a) Run each chunk one command at a time (use Ctrl+Enter or Cmd+Enter) and make sure you understand what's happening.
+b) If using this as a refernce: press the 'Outline' button at the top right of this screen (near the Run button) to see the sections of this script, click to go to that section
+
 ```{r Load library}
 library(tidyverse)
 ```

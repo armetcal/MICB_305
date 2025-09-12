@@ -1,0 +1,127 @@
+---
+title: "Module 14 - Feature-Level Analyses"
+output: html_document
+---
+
+In this R Markdown script, we will load in our taxonomy phyloseq object from the Moving Pictures Tutorial and we will run:
+
+-   Core microbiome
+
+-   Indicator species analysis
+
+-   Differential abundance
+
+The last few modules have showcased a lot of wrangling from Module 10 and elsewhere. From this point onward, the scripts will stripped to their essentials - it will be up to you to apply code from the previous modules if you want to explore or wrangle the data further!
+
+```{r Load data and libraries}
+library(tidyverse)
+library(phyloseq)
+
+# Load object
+ps = readRDS('../Datasets/phyloseq_taxonomy.rds')
+```
+
+# Core microbiome
+
+I am listing the libraries as I go so that you can see where each one is used.
+However, best practice is to load all libraries at the start of the script.
+
+**Consider:** How could you modify the following code so that you only write out each command after transform() once?
+
+```{r}
+library(microbiome) # Same package as the transform() command
+
+# Rarefy if desired and convert to relative abundance, use tax_glom (optional)
+psrare = rarefy_even_depth(ps, sample.size = 2513)
+ps_rare_relab = transform(psrare, 'compositional')
+ps_rare_relab_genus = tax_glom(ps_rare_relab, 'Genus')
+
+# Subset your phyloseq object
+site.gut = subset_samples(ps_rare_relab_genus, body.site == 'gut')
+site.tongue = subset_samples(ps_rare_relab_genus, body.site == 'tongue')
+site.leftpalm = subset_samples(ps_rare_relab_genus, body.site == 'left palm')
+site.rightpalm = subset_samples(ps_rare_relab_genus, body.site == 'right palm')
+
+# Find core members
+ASVs_gut = core_members(site.gut, detection=0.001, prevalence = 0.8)
+ASVs_tongue = core_members(site.tongue, detection=0.001, prevalence = 0.8)
+ASVs_leftpalm = core_members(site.leftpalm, detection=0.001, prevalence = 0.8)
+ASVs_rightpalm = core_members(site.rightpalm, detection=0.001, prevalence = 0.8)
+
+library(ggVennDiagram)
+ggVennDiagram(list(ASVs_gut, ASVs_tongue, ASVs_leftpalm, ASVs_rightpalm),
+      			  set_size = 6,
+              category.names = c('gut','tongue','left palm','right palm') )
+```
+
+# Indicator species analysis
+
+```{r statistics}
+library(indicspecies)
+
+# Aggregate ASVs to higher taxonomic level (optional), 
+# convert phyloseq to relative abundance, 
+# apply abundance filter.
+
+ps_phylum = tax_glom(ps,'Phylum')
+ps_relab = transform(ps_phylum, 'compositional')
+ps_filt = filter_taxa(ps_relab, function(x) mean(x) > 0.001, TRUE)
+otu_table = as.data.frame(otu_table(ps_filt))
+
+set.seed(421)
+indval = multipatt( t(otu_table), 
+            cluster= ps_filt@sam_data$body.site,
+ 		  control = how(nperm = 999) )
+
+summary(indval, indvalcomp = TRUE)
+
+# Extract into table
+indval_table = as.data.frame(indval$sign)
+```
+
+```{r plot}
+# Plot the two taxa that are indicators for the gut
+phyla_to_plot = indval_table %>% 
+  filter(s.gut==1 & s.tongue==0 & `s.left palm`==0 & `s.right palm`==0 ) %>% 
+  rownames()
+
+df_of_taxa = prune_taxa(phyla_to_plot, ps_filt) %>% psmelt()
+
+df_of_taxa %>% 
+  ggplot(aes(body.site,Abundance,fill=body.site)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(height=0, width=0.2) +
+  facet_wrap(~Phylum, ncol = 4, scales = 'free')
+```
+
+# Differential abundance with ANCOM-BC2
+
+```{r statistics}
+library(ANCOMBC)
+
+# Tax_glom if desired. DON'T rarefy or use a compositional transformation!
+ps_glom = tax_glom(ps, 'Genus')
+
+set.seed(421)
+out = ancombc2(data = ps_glom, 
+               fix_formula = 'body.site', 
+               p_adj_method = 'BH',
+               prv_cut = 0.1)
+
+statistical_table = out$res
+```
+
+```{r Plot}
+# Filter stats to only include taxa that are differentially abundant between the gut and tongue
+taxa_to_plot = statistical_table %>% 
+  filter(diff_robust_body.sitetongue==T) 
+
+# Plot the log 2 fold changes
+# Note: you'll have to figure out how to plot the genera names instead of the
+# representative ASV names!
+taxa_to_plot %>%
+  ggplot(aes(x=taxon, y=lfc_body.sitetongue)) +
+  geom_col() +
+  coord_flip()
+```
+

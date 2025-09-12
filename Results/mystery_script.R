@@ -51,7 +51,7 @@ list_of_options = list(
 
 to_print = sample(list_of_options,1)
 
-cat(paste0(to_print[[1]],collapse='\n'))
+cat(paste0(to_print[[1]],collapse='\n'),'\n')
 
 # We're just printing to screen - no return value needed
 # Therefore no return statement!

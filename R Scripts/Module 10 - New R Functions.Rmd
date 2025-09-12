@@ -8,7 +8,7 @@ In this R Markdown script, we will practice the new R functions and tools shown 
 This will copy and expand on the commands shown in the slides.
 
 I recommend the following:
-a) Run each chunk one command at a time (use Ctrl+Enter or Cmd+Enter) and make sure you understand what's happening.
+**a) Run each chunk one command at a time (use Ctrl+Enter or Cmd+Return)** and make sure you understand what's happening.
 b) If using this as a refernce: press the 'Outline' button at the top right of this screen (near the Run button) to see the sections of this script, click to go to that section
 
 ```{r Load library}
@@ -19,10 +19,10 @@ library(tidyverse)
 
 ```{r}
 # Find patterns
-str_detect("hello",'h')
+str_detect("hello",pattern='h')
 
 # Modify string
-str_replace("hello", 'h', 'j')
+str_replace("hello", pattern='h', replacement = 'j')
 # _all suffix replaces all instances
 str_replace("hello", 'l', 'y')
 str_replace_all("hello", 'l', 'y')
@@ -31,10 +31,10 @@ str_replace_all("hello", 'l', 'y')
 str_sub("hello",start=2,end=3)
 str_sub("hello",2,3) # Same result
 str_sub("hello",2) # To the end
-str_sub("hello",-2,-1) # Negative numbers count from the end
+str_sub("hello",-5,-1) # Negative numbers count from the end
 
 # Split strings
-split = str_split("hello",'l')
+split = str_split("hello",pattern = 'l')
 split
 str(split) # List format
 split[1] # Doesn't do anything
@@ -42,7 +42,7 @@ split_list = split[[1]] # Extract the first element of the list
 split_list
 
 # Join strings
-paste('adds','space')
+paste('adds','space') # sep is ' ' by default
 paste0('no','space')
 
 paste(split_list, collapse = 'y') # Collapse a vector into a single string
@@ -67,7 +67,7 @@ str_length(vec)
 
 ```{r}
 A = c(1,2,3,4,5)
-B = c(1,1,1,2,3,5)
+B = c(1,1,2,3,5)
 
 identical(A,B) # Not the same...
 identical(A[1],B[1]) # ...But the first values are
@@ -100,29 +100,44 @@ df2 = data.frame(ID=paste0('Sample',3:7),  # Overlapping IDs
                  Fave_colour=c('red','blue','green','yellow','purple'),
                  Fave_food=c('pizza','sushi','tacos','pasta','salad'))
 
+# Print the tables for our reference
+df1;df2
+```
+
+```{r}
 # Full join - all data is retained
-View(full_join(df1,df2))
+full_join(df1,df2)
 # Inner join - only overlapping data is retained
-View(inner_join(df1,df2))
+inner_join(df1,df2)
 # Left join - all data from left table, overlapping data from right table
-View(left_join(df1,df2))
+left_join(df1,df2)
 # Right join - all data from right table, overlapping data from left table
-View(right_join(df1,df2))
+right_join(df1,df2)
+```
 
-# What happens if the data frames have the same names?
-View(full_join(df1,df1)) # Uses all columns that share a name to join
-View(full_join(df1,df1, by = 'ID')) # Treats any other column as separate data, adds sufflxes
+What happens if the data frames have the same names?
 
+```{r same_names}
+full_join(df1,df1) # Uses all columns that share a name to join, therefore no difference
+full_join(df1,df1, by = 'ID') # Treats any other column as separate data EVEN IF the data are identical. Adds suffixes to denote origin.
+```
+
+What if the columns you're using to join have different values?
+
+```{r diff_values}
 df1_mutated = df1
 df1_mutated$Age[1] = 99 # Change one value so not identical
-View(full_join(df1,df1_mutated)) # Now that sample has two rows. Always inspect your outputs!!!!! Common error with big datasets.
+full_join(df1,df1_mutated) # Now sample 1 has two rows. Always inspect your outputs!!!!! Common error with big datasets.
+```
 
-# Merge - base R version of join
-View(merge(df1,df2)) # Default is inner join
-View(merge(df1,df2, all.x=TRUE)) # Left join
-View(merge(df1,df2, all.y=TRUE)) # Right join
-View(merge(df1,df2, all=TRUE)) # Full join
-View(merge(df1,df2, by='row.names')) # Merge by rownames
+Base R version of 'join' commands
+
+```{r merge}
+merge(df1,df2) # Default is inner join
+merge(df1,df2, all=TRUE) # Full join
+merge(df1,df2, all.x=TRUE) # Left join
+merge(df1,df2, all.y=TRUE) # Right join
+merge(df1,df2, by='row.names') # Merge by rownames - none of the columns are used
 ```
 
 # If/else
@@ -157,6 +172,7 @@ str_split('hello','l') %>% .[[1]]
 # `rownames()<-` changes the rownames of a dataframe OR MATRIX
 # `colnames()<-` changes the colnames of a dataframe OR MATRIX
 df1
+df1 %>% `names<-`(c('set','new','names')) 
 df1 %>% as.matrix %>% `colnames<-`(c('set','new','names')) # Change colnames
 df1 %>% as.matrix %>% `names<-`(c('set','new','names')) # Doesn't work on matrices
 ```
@@ -180,7 +196,7 @@ calculate_diversity = function(data) {
 
 # Call the calculate_diversity function with the broken data
 debug('calculate_diversity')
-run_analysis(calculate_diversity)
+calculate_diversity(faulty_data)
 undebug('calculate_diversity')
 ```
 
@@ -199,13 +215,18 @@ new_function(2,0,4)
 new_function = function(x,y=0,z=4) x * y + z
 new_function(2)
 
+# Even if you have a default value, if you write '2' without specifying which variable it is for, R will assume it's for the first variable
+new_function = function(x=0,y,z=4) x * y + z
+new_function(2)
+new_function(y=2)
+
 # Multiple lines
 new_function = function(x,y=0,z=4) {
   a = x * y
   b = a + z
   return(b) # Very important!
 }
-new_function(1,2,3) # Note - overwrites default values
+new_function(1,2,3) # You can overwrite default values
 ```
 
 # Trouleshoot a function you wrote
@@ -228,11 +249,13 @@ calculate_pct = function(numerator, denominator = 100){
 ```{r}
 in_environment = objects() # List objects in current environment
 source('../Results/mystery_script.R')
-in_environment_after = objects() # List objects in current environment
-setdiff(in_environment_after, in_environment) # What new objects were created?
+in_environment_after = objects()
 
-generate() # Sometimes, functions don't have inputs
-generate()
+# What new objects were created?
+setdiff(in_environment_after, in_environment) 
+
+# So mysterious!
+generate() # Sometimes functions don't have inputs
 ```
 
 # For loops
@@ -243,7 +266,8 @@ for(i in c(1,2,3)){
 }
 for(i in c(1:3)) print(i)
 
-named_vector = c(a=1,b=2,c=3)
+named_vector = c(a=10,b=100,c=1000)
+named_vector
 for(i in named_vector) print(i) # values
 for(i in names(named_vector)) print(i) # names
 for(i in 1:length(named_vector)) print(i) # indices
@@ -271,8 +295,7 @@ rowsums_per_df
 # Summarize and Group_modify
 
 ```{r}
-# A tibble is a type of dataframe (the fanciest type!)
-df_of_shapes = tibble(colour = c(rep('blue',3),
+df_of_shapes = data.frame(colour = c(rep('blue',3),
                                  rep('red',3)),
                       sides = c(8,12,12,48,20,20),
                       pointy = TRUE)
@@ -284,7 +307,7 @@ df_of_shapes %>%
   ungroup()
 
 # Using group_modify
-# It works almost the same in this case, but group_modify is way more flexible
+# It works almost the same in this case, but group_modify is far more flexible
 # You will use it to run statistical tests and wrangle the outputs
 df_of_shapes %>% 
   group_by(colour) %>% 

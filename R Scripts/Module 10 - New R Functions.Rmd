@@ -1,0 +1,303 @@
+---
+title: "Module 10 - New R Functions"
+output: html_document
+---
+
+In this R Markdown script, we will practice the new R functions and tools shown in Module 10.
+
+This will copy and expand on the commands shown in the slides.
+
+```{r Load library}
+library(tidyverse)
+```
+
+# Stringr commands
+
+```{r}
+# Find patterns
+str_detect("hello",'h')
+
+# Modify string
+str_replace("hello", 'h', 'j')
+# _all suffix replaces all instances
+str_replace("hello", 'l', 'y')
+str_replace_all("hello", 'l', 'y')
+
+# Extract string
+str_sub("hello",start=2,end=3)
+str_sub("hello",2,3) # Same result
+str_sub("hello",2) # To the end
+str_sub("hello",-2,-1) # Negative numbers count from the end
+
+# Split strings
+split = str_split("hello",'l')
+split
+str(split) # List format
+split[1] # Doesn't do anything
+split_list = split[[1]] # Extract the first element of the list
+split_list
+
+# Join strings
+paste('adds','space')
+paste0('no','space')
+
+paste(split_list, collapse = 'y') # Collapse a vector into a single string
+paste('he','','o', sep = 'y') # Each item listed out manually
+paste(1,2,3) # Also works on numbers
+
+# String length
+str_length("hello")
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Also works on a vector of strings (not list(), which is different, but c())
+vec = c("hello","hi","howdy")
+str_detect(vec,'h')
+str_replace(vec, 'h', 'j')
+str_sub(vec,2,3)
+str_split(vec,'o')
+str_length(vec)
+```
+
+# Comparing Data
+
+```{r}
+A = c(1,2,3,4,5)
+B = c(1,1,1,2,3,5)
+
+identical(A,B) # Not the same...
+identical(A[1],B[1]) # ...But the first values are
+identical(factor(A[1]), as.character(B[1])) # Different data types
+
+A == B # One value for each comparison
+table(A == B) # Count of TRUE/FALSE
+which(A==B) # Indices of TRUE values
+which(A>B) # Can use any true/false test
+table(A %in% B)
+
+duplicated(A)
+duplicated(B)
+
+intersect(A,B) # In both A and B
+setdiff(A,B) # In A but not B
+union(A,B) # In A or B
+```
+
+# Join functions
+
+```{r}
+# Create two dataframes to join
+# n=5 samples
+df1 = data.frame(ID=paste0('Sample',1:5),
+                 Age=sample(18:65,5), # Random ages
+                 Weight=sample(100:200,5)) # Random weights
+
+df2 = data.frame(ID=paste0('Sample',3:7),  # Overlapping IDs
+                 Fave_colour=c('red','blue','green','yellow','purple'),
+                 Fave_food=c('pizza','sushi','tacos','pasta','salad'))
+
+# Full join - all data is retained
+View(full_join(df1,df2))
+# Inner join - only overlapping data is retained
+View(inner_join(df1,df2))
+# Left join - all data from left table, overlapping data from right table
+View(left_join(df1,df2))
+# Right join - all data from right table, overlapping data from left table
+View(right_join(df1,df2))
+
+# What happens if the data frames have the same names?
+View(full_join(df1,df1)) # Uses all columns that share a name to join
+View(full_join(df1,df1, by = 'ID')) # Treats any other column as separate data, adds sufflxes
+
+df1_mutated = df1
+df1_mutated$Age[1] = 99 # Change one value so not identical
+View(full_join(df1,df1_mutated)) # Now that sample has two rows. Always inspect your outputs!!!!! Common error with big datasets.
+
+# Merge - base R version of join
+View(merge(df1,df2)) # Default is inner join
+View(merge(df1,df2, all.x=TRUE)) # Left join
+View(merge(df1,df2, all.y=TRUE)) # Right join
+View(merge(df1,df2, all=TRUE)) # Full join
+View(merge(df1,df2, by='row.names')) # Merge by rownames
+```
+
+# If/else
+
+```{r}
+x = 5
+
+# Option 1
+if(x > 3){
+  print('x is greater than 3')
+} else {
+  print('x is not greater than 3')
+}
+
+# Option 2
+ifelse(x > 3, 'x is greater than 3', 'x is not greater than 3')
+
+df1 %>% mutate(Age_group = ifelse(Age > 40, 'old', 'young'), .after=Age)
+```
+
+# . and `<-` commands
+
+```{r}
+# . refers to the data being piped in
+# I.e. . is 'the data after everything in the pipe up to this point'
+
+str_split('hello','l')[[1]]
+str_split('hello','l') %>% .[[1]]
+
+# `<-` commands allow assignments within pipes
+# `names()<-` changes the names of a dataframe OR LIST
+# `rownames()<-` changes the rownames of a dataframe OR MATRIX
+# `colnames()<-` changes the colnames of a dataframe OR MATRIX
+df1
+df1 %>% as.matrix %>% `colnames<-`(c('set','new','names')) # Change colnames
+df1 %>% as.matrix %>% `names<-`(c('set','new','names')) # Doesn't work on matrices
+```
+
+# Troubleshooting functions
+
+```{r}
+library(vegan) # You should have this from MICB 205
+
+# This is a fake count dataset with an error in it
+faulty_data = data.frame(
+  species1 = c(10, 20, "thirty", 40),
+  species2 = c(5, 15, 25, 35)
+)
+
+# Nesting the diversity function inside another function
+# (You'll see why in a minute)
+calculate_diversity = function(data) {
+  diversity(data)
+}
+
+# Call the calculate_diversity function with the broken data
+debug('calculate_diversity')
+run_analysis(calculate_diversity)
+undebug('calculate_diversity')
+```
+
+# Writing functions
+
+```{r}
+# Single variable
+new_function = function(x) x * 2
+new_function(2)
+
+# Multiple variables
+new_function = function(x,y,z) x * y + z
+new_function(2,0,4)
+
+# Default values
+new_function = function(x,y=0,z=4) x * y + z
+new_function(2)
+
+# Multiple lines
+new_function = function(x,y=0,z=4) {
+  a = x * y
+  b = a + z
+  return(b) # Very important!
+}
+new_function(1,2,3) # Note - overwrites default values
+```
+
+# Trouleshoot a function you wrote
+
+```{r}
+calculate_pct = function(numerator, denominator = 100){
+  
+  # These values let you test the function
+  # Just comment them out when you're done
+  # Remember, it won't automatically know that the default denominator is 100!
+  
+  # numerator = 10, denominator = 100
+  
+  pct = 100 * (numerator / denominator)
+  return(pct)
+}
+```
+
+# Sourcing scripts
+```{r}
+in_environment = objects() # List objects in current environment
+source('../Results/mystery_script.R')
+in_environment_after = objects() # List objects in current environment
+setdiff(in_environment_after, in_environment) # What new objects were created?
+
+generate() # Sometimes, functions don't have inputs
+generate()
+```
+
+# For loops
+
+```{r}
+for(i in c(1,2,3)){
+  print(i)
+}
+for(i in c(1:3)) print(i)
+
+named_vector = c(a=1,b=2,c=3)
+for(i in named_vector) print(i) # values
+for(i in names(named_vector)) print(i) # names
+for(i in 1:length(named_vector)) print(i) # indices
+for(i in 1:length(named_vector)) print(named_vector[i]) # values with names, using indices
+```
+
+# Apply functions
+
+```{r}
+df = data.frame(X = c(3,6,9), Y = c(6,12,18))
+
+# Apply
+row_sums = apply(df, MARGIN=1, FUN = sum) # 1 = rows, 2 = columns
+col_sums = apply(df, 2, sum)
+
+# Sapply
+Y = sapply(df$X, function(i) i*2) # Multiplies each column by 2
+
+# Lapply
+# df*2 doubles each value in the dataframe
+rowsums_per_df = lapply(list(df, df*2), rowSums)
+rowsums_per_df
+```
+
+# Summarize and Group_modify
+
+```{r}
+# A tibble is a type of dataframe (the fanciest type!)
+df_of_shapes = tibble(colour = c(rep('blue',3),
+                                 rep('red',3)),
+                      sides = c(8,12,12,48,20,20),
+                      pointy = TRUE)
+
+# Using summarize
+df_of_shapes %>% 
+  group_by(colour) %>% 
+  summarize(mean=mean(sides), sd=sd(sides)) %>% 
+  ungroup()
+
+# Using group_modify
+# It works almost the same in this case, but group_modify is way more flexible
+# You will use it to run statistical tests and wrangle the outputs
+df_of_shapes %>% 
+  group_by(colour) %>% 
+  group_modify(~{
+
+    mean = mean(.x$sides)
+    sd = sd(.x$sides)
+
+    colour_title = str_to_title(.y)
+
+    output = tibble(title = colour_title, 
+                     mean=mean, sd=sd)
+  }) %>% 
+  ungroup()
+```
+
+
+
+
+

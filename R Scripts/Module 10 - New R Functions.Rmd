@@ -34,19 +34,24 @@ str_sub("hello",-5,-1) # Negative numbers count from the end
 
 Before looking at str_split, let's look at vectors vs lists.
 
-```{r lists vs vectors}
+```{r}
 # Vectors - analogous to matrices
 a = c(1,2,3)
 b = c(4,5,6)
+b[2] # Second value in vector
 
-c(4,'b',6)
-c(a,b)
-c(v1 = a, v2 = b)
+c(4,'b',6) # Converts everything to the same type
+c(a,b) # 'Flattens' a and b
+c(v1 = a, v2 = b) # Can add names to every value
 
 # Lists - analogous to data frames
 list(4,'b',6)
 list(a,b)
 my_list = list(v1 = a, v2 = b)
+my_list
+my_list$v2
+my_list[[2]] # Second value in list
+my_list[[2]][2] # 2nd value in 2nd value of list
 
 # Lists are analogous to directories
 folder = list(file_1 = 'TACGTCAG', 
@@ -55,10 +60,7 @@ root_directory = list(folder_1 = folder)
 root_directory
 ```
 
-
-
-
-
+Now we can look at str_split:
 
 ```{r}
 # Split strings
@@ -70,6 +72,7 @@ split_list = split[[1]] # Extract the first element of the list
 split_list
 ```
 
+Split, join, and length:
 
 ```{r}
 # Join strings
@@ -82,10 +85,10 @@ paste(1,2,3) # Also works on numbers
 
 # String length
 str_length("hello")
+```
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# Also works on a vector of strings (not list(), which is different, but c())
+These commands also work on a *vector* of strings - not list(), which is different, but c().
+```{r}
 vec = c("hello","hi","howdy")
 str_detect(vec,'h')
 str_replace(vec, 'h', 'j')
@@ -108,7 +111,7 @@ A == B # One value for each comparison
 table(A == B) # Count of TRUE/FALSE
 which(A==B) # Indices of TRUE values
 which(A>B) # Can use any true/false test
-table(A %in% B)
+table(A %in% B) # Is each value of A equal to any value of B?
 
 duplicated(A)
 duplicated(B)
@@ -280,8 +283,11 @@ calculate_pct = function(numerator, denominator = 100){
 # Sourcing scripts
 
 ```{r}
+# Download mystery file!
+download.file('https://raw.githubusercontent.com/armetcal/MICB_305/refs/heads/main/R%20Scripts/mystery_script.R', "mystery_script.R")
+
 in_environment = objects() # List objects in current environment
-source('../Results/mystery_script.R')
+source('mystery_script.R')
 in_environment_after = objects()
 
 # What new objects were created?

@@ -7,9 +7,7 @@ In this R Markdown script, we will practice the new R functions and tools shown 
 
 This will copy and expand on the commands shown in the slides.
 
-I recommend the following:
-**a) Run each chunk one command at a time (use Ctrl+Enter or Cmd+Return)** and make sure you understand what's happening.
-b) If using this as a refernce: press the 'Outline' button at the top right of this screen (near the Run button) to see the sections of this script, click to go to that section
+I recommend the following: **a) Run each chunk one command at a time (use Ctrl+Enter or Cmd+Return)** and make sure you understand what's happening. b) If using this as a refernce: press the 'Outline' button at the top right of this screen (near the Run button) to see the sections of this script, click to go to that section
 
 ```{r Load library}
 library(tidyverse)
@@ -32,7 +30,37 @@ str_sub("hello",start=2,end=3)
 str_sub("hello",2,3) # Same result
 str_sub("hello",2) # To the end
 str_sub("hello",-5,-1) # Negative numbers count from the end
+```
 
+Before looking at str_split, let's look at vectors vs lists.
+
+```{r lists vs vectors}
+# Vectors - analogous to matrices
+a = c(1,2,3)
+b = c(4,5,6)
+
+c(4,'b',6)
+c(a,b)
+c(v1 = a, v2 = b)
+
+# Lists - analogous to data frames
+list(4,'b',6)
+list(a,b)
+my_list = list(v1 = a, v2 = b)
+
+# Lists are analogous to directories
+folder = list(file_1 = 'TACGTCAG', 
+              file_2 = 'GCCCATGAT')
+root_directory = list(folder_1 = folder)
+root_directory
+```
+
+
+
+
+
+
+```{r}
 # Split strings
 split = str_split("hello",pattern = 'l')
 split
@@ -40,7 +68,10 @@ str(split) # List format
 split[1] # Doesn't do anything
 split_list = split[[1]] # Extract the first element of the list
 split_list
+```
 
+
+```{r}
 # Join strings
 paste('adds','space') # sep is ' ' by default
 paste0('no','space')
@@ -238,7 +269,8 @@ calculate_pct = function(numerator, denominator = 100){
   # Just comment them out when you're done
   # Remember, it won't automatically know that the default denominator is 100!
   
-  # numerator = 10, denominator = 100
+  # numerator = 10
+  # denominator = 100
   
   pct = 100 * (numerator / denominator)
   return(pct)
@@ -246,6 +278,7 @@ calculate_pct = function(numerator, denominator = 100){
 ```
 
 # Sourcing scripts
+
 ```{r}
 in_environment = objects() # List objects in current environment
 source('../Results/mystery_script.R')
@@ -323,8 +356,3 @@ df_of_shapes %>%
   }) %>% 
   ungroup()
 ```
-
-
-
-
-

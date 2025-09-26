@@ -99,6 +99,9 @@ Feel free to use this function, edit the function to make it even better, or mak
 
 ```{r fixed function}
 source('ggpicrust2_errorbar_function_fixed.R')
+
+daa_annotated_results_df %>% filter(p_adjust< 5e-11, abs(log2FoldChange) > 5) %>% nrow()
+
 peb = pathway_errorbar_fixed(abundance = ko_filt, 
                      daa_results_df = daa_annotated_results_df, 
                      Group = lpalmvstongue$body.site, 
@@ -109,16 +112,16 @@ peb = pathway_errorbar_fixed(abundance = ko_filt,
                      ko_to_kegg = TRUE, 
                      p_value_bar = TRUE, 
                      x_lab = "pathway_name")
+peb
 ggsave("../Results/Plots/Module 15 - KEGG Error Bar Fixed.png",
        plot = peb, width = 18, height = 10)
 ```
 
-Let's see which features are essentially the same (they'll be highly correlated).
-Keep this in mind when writing up your results.
+Let's see which features are essentially the same (they'll be highly correlated). Keep this in mind when writing up your results.
 
 ```{r identical features}
 sig_features = daa_annotated_results_df %>% 
-  filter(p_adjust < 5e-11) %>% 
+  filter(p_adjust < 5e-11, abs(log2FoldChange) > 5) %>% 
   pull('feature') %>% unique()
 
 ko_relab = read.delim('../Datasets/pred_metagenome_unstrat.tsv',row.names = 1) %>% 
@@ -128,7 +131,7 @@ colSums(ko_relab) # Should be all 1
 stats = ko_relab %>% t() %>%  # switch rows and columns
   as.data.frame() %>% # Lets us use select()
   select(all_of(sig_features)) %>% 
-  cor(method = 'pearson') #Spearman tests between every feature pair
+  cor(method = 'pearson') #Pearson tests between every feature pair
 
 # Define the color palette
 color_palette <- colorRampPalette(c("blue", "white", "red"))(40)
@@ -137,6 +140,8 @@ color_palette <- colorRampPalette(c("blue", "white", "red"))(40)
 breaks <- seq(-1, 1, length.out = 41)  # 40 colors + 1 for the endpoint
 
 # Create the clustered heatmap with centered color at zero
+# install.packages("pheatmap")
+library('pheatmap')
 pheatmap(stats, 
          clustering_distance_rows = "euclidean",  
          clustering_distance_cols = "euclidean", 
@@ -150,8 +155,7 @@ pheatmap(stats,
          height= 9, width = 9)
 ```
 
-See how similar your sample groups are.
-Unfortunately, the size of the text can't be increased, even with theme() commands.
+See how similar your sample groups are. Unfortunately, the size of the text can't be increased, even with theme() commands.
 
 ```{r PCA}
 # Generate pathway PCA plot
@@ -159,4 +163,3 @@ pathway_pca(abundance = ko_filt,
             metadata = lpalmvstongue, 
             group = "body.site")
 ```
-

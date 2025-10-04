@@ -1,0 +1,280 @@
+---
+title: "Random Forest"
+author: "Avril Metcalfe-Roach"
+date: "`r Sys.Date()`"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+This R Markdown file produces a publication-worthy Random Forest. The
+code will quantify how well a group of predictor variables (metadata
+and/or microbiome data) can predict an outcome of interest.
+
+The following elements are included:
+
+-   Training group and testing group
+-   Hyperparameter tuning
+-   K-fold cross-validation
+-   Feature importance calculation
+-   Receiver Operator Characteristic (ROC) curves
+-   Area-Under-Curve (AUC) values
+
+# Part 1: Load data
+
+The Moving Pictures dataset is not large enough to run Random Forest
+effectively. We will therefore use a dataset that looks at people with
+and without Parkinson's disease.
+
+**The relevant data have been added to the Datasets folder. If the below
+code does not run, please 'pull' from GitHub to ensure that you have the
+most up-to-date version of the MICB 305 repo.**
+
+```{r Load Libraries and Data}
+# install.packages('randomForest')
+# install.packages('caret')
+# install.packages('ranger')
+# install.packages('pROC')
+# install.packages('boot')
+library(randomForest)
+library(caret)
+library(ranger)
+library(pROC)
+library(boot)
+library(ggplot2)
+library(phyloseq)
+library(tidyverse)
+
+# Load the dataset and aggregate reads to the Genus level
+ps = readRDS('../Datasets/module16_phyloseq.rds') %>% 
+  tax_glom('Genus')
+```
+
+# Part 2: Format data
+
+For Random Forest, we need the following data characteristics:
+
+-   Our outcome variable: here we will use disease (PD) vs. Control.
+
+-   We should only include taxonomy and variables that we want to use in
+    the model.
+
+    -   Not usually ideal to test every single variable - chances of
+        overfitting is high
+
+-   The variables should be normalized. Continuous data (including
+    metadata, if applicable) should all be on roughly the same scale.
+
+    -   Microbiome data will [first]{.underline} be CLR-transformed
+        (Recall Module 12).
+
+        -   Note: this [must]{.underline} be done before filtering the
+            taxa.
+
+    -   These variables will [then]{.underline} be "Z-transformed" (mean
+        of zero, standard deviation of 1).
+
+-   The data can't contain missing values. (You may have to filter out
+    rows with missing metadata)
+
+```{r Format dataset for RF}
+# For this tutorial, we will arbitrarily use the top 10 most abundant genera as input for the random forest.
+
+# Calculate average abundance~~~~~~~~~~~~
+avg_abundance = taxa_sums(ps)/sum(taxa_sums(ps)) 
+# Sort high to low
+avg_abundance = sort(avg_abundance, decreasing = T)
+# Take the top 10
+top_10 = avg_abundance[1:10]
+# Extract taxa names 
+top_10 = names(top_10)
+
+# Normalize microbiome data and select only the top 10 taxa
+# CLR transformation
+ps_clr = ps %>% microbiome::transform('clr') 
+# Filter taxa
+ps_filt = prune_taxa(top_10,ps_clr)
+# Melt the dataset
+df = psmelt(ps_filt)
+# Add Z transformation to each genus individually
+# (mean of zero, standard deviation of 1)
+df_transformed = df %>% 
+  group_by(Genus) %>% 
+  mutate(Abundance = scale(Abundance)) %>% 
+  ungroup()
+
+# Final table: should ONLY contain the outcome and explanatory variables, each as their own column.
+df_pivot = df_transformed %>% 
+  # Start by retaining the sample ID as well
+  select(Sample,Case_status,Genus,Abundance) %>% 
+  # Turn each genus into its own column
+  pivot_wider(names_from = Genus, values_from = Abundance)
+
+# Remove rows with NA values in the metadata
+df_noNA = df_pivot %>% na.omit()
+
+# Remove the sample ID column - otherwise the code will try to use it as an explanatory variable (just like the microbial genera).
+# We do this after pivoting (try doing it before pivoting, see what happens!)
+df_final = df_noNA %>% select(-Sample)
+```
+
+Now all we have is a data frame with our outcome variable (PD vs Ctrl)
+and our explanatory variables (the top 10 most abundant taxa). All
+numerical variables are normalized.
+
+```{r}
+df_final
+```
+
+# Part 3: Set up RF
+
+First, we will separate the data into predictors (taxa) and outcome
+(disease status).
+
+```{r predictors_and_outcome}
+predictors = df_final %>% select(-Case_status)
+
+# We will transform Case_status into a factor.
+# The first level of the factor is automatically used as the reference group.
+# Therefore, we will put the control group first.
+# The results will describe the PD group relative to the reference (control) group.
+outcome = df_final %>% pull(Case_status) %>% 
+  factor(levels = c('Control','PD'))
+```
+
+Next, we will set up the k-fold cross-validation. We will set k=5, so
+that our dataset is randomly broken into 5 groups.
+
+```{r k_fold_CV}
+# Randomly subsets the rows into k equal bins.
+k = 5
+set.seed(421)
+folds = createFolds(outcome, k = k, list = TRUE)
+
+# Each of these folds will take a turn being the test dataset.
+str(folds)
+```
+
+Finally, we will set up our hyperparameter tuning. This is a data frame
+that lists a range of possible values for each random forest parameter.
+This is what you will edit if your model is improperly tuned.
+
+*FYI: In R, only a few parameters can be modified. As of 2025, python is
+the recommended language for running machine learning algorithms, as it
+provides the most flexibility (but that is far beyond the scope of our
+course!).*
+
+*FYI: there are other ways to run hyperparameter tuning, but this way is
+less computationally intensive.*
+
+```{r hyperparameters}
+# mtry: number of variables that will be used per forest. 
+#       High = overfitting, low = uninformative
+
+# splitrule: affects how decision trees are calculated.
+#            Use gini or extratrees for boolean outcomes (ex. Case_status)
+#            Use variance for continuous outcomes (ex. age)
+
+# min.node.size: Related to tree complexity. Larger = simpler tree
+
+# These are generic values. Depending on your dataset, you may need to adjust the numeric ranges up or down.
+tune_grid = expand.grid(mtry = c(3, 5, 7, 10), 
+                       splitrule = c("gini","extratrees"),
+                       min.node.size = c(10, 15, 20))
+```
+
+# Part 4: Run RF
+
+The random forest code is complicated. I have compiled it into a single
+function called `run_rf`, which can be loaded using the `source`
+command. A helper command will also be loaded.
+
+```{r run_rf}
+source('randomforest_functions.R')
+
+pd_model = run_rf(X = predictors, y = outcome, 
+                  fold_list = folds,
+                  hyper = tune_grid, 
+                  rngseed = 421)
+```
+
+The pd_model object contains the following:
+
+`auc_train & auc_test:` final AUC values for train/test datasets,
+averaged across all k folds
+
+`auc_train_ci & auc_test_ci:` AUC 95% confidence intervals
+
+`test_labels & train_labels:` Predictions for each individual sample
+
+`importance:` Importance values for each predictor (higher = more
+important)
+
+```{r inspect_output}
+names(pd_model)
+pd_model
+```
+
+# Part 5: Interpret Results
+
+First we will generate our ROC curve.
+
+```{r ROC_curve}
+# Calculate ROC curve points from RF output
+roc_test = roc(pd_model$test_labels$true_labels,
+               pd_model$test_labels$predicted_probabilities)
+roc_train = roc(pd_model$train_labels$true_labels,
+                pd_model$train_labels$predicted_probabilities)
+
+# True positive rate = sensitivity
+# False positive rate = 1-specificity
+ggplot() +
+  # Training data: this is a type of control
+  geom_line(aes(x = 1 - roc_train$specificities, 
+                y = roc_train$sensitivities), 
+            color = "red",size=1) +
+  # Test data: tells us the strength of the prediction
+  geom_line(aes(x = 1 - roc_test$specificities,
+                y = roc_test$sensitivities), 
+            color = "black",size=1) +
+  geom_abline(slope = 1, intercept = 0, color = "gray", linetype = "dashed",size=1) +
+  labs(x = "False Positive Rate", y = "True Positive Rate") +
+  annotate("text", x = 0.7, y = 0.2, 
+           label = sprintf("Train (red): %.2f (%.2f-%.2f)\nTest (black): %.2f (%.2f-%.2f)",
+           auc(roc_train), pd_model$auc_train_ci[1], pd_model$auc_train_ci[2],
+           auc(roc_test), pd_model$auc_test_ci[1], pd_model$auc_test_ci[2]), 
+           size = 6) +
+  theme_minimal(base_size=18)
+```
+
+Next, we'll compile the results into a table. This will allow us to
+easily compare different models, if desired.
+
+```{r compile_results}
+roc_data = data.frame(Dataset = 'RF Tutorial Data',
+     Training_AUC = round(pd_model$auc_train, 2),
+     Training_AUC_CI = paste0(round(pd_model$auc_train_ci[1], 2), "-", 
+                              round(pd_model$auc_train_ci[2], 2)),
+     Testing_AUC = round(pd_model$auc_test, 2),
+     Testing_AUC_CI = paste0(round(pd_model$auc_test_ci[1], 2), "-", 
+                             round(pd_model$auc_test_ci[2], 2)))
+```
+
+Finally, we'll plot the importance values of each predictor.
+
+```{r}
+pd_model$importance
+```
+
+```{r importance_values}
+pd_model$importance %>% 
+  # Data are automatically arranged by decreasing importance - turn it into a factor.
+  # Otherwise the features will show up alphabetically in the plot.
+  mutate(Feature = factor(.$Feature,levels = .$Feature)) %>% 
+  ggplot(aes(Feature,MeanDecreaseGini,fill=MeanDecreaseGini)) +
+  geom_col() +
+  theme_classic(base_size=18) +
+  theme(axis.text.x = element_text(angle=45, vjust = 1, hjust=1)) +
+  ylab('Importance (Gini)') + xlab(NULL)
+```

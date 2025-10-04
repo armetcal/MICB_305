@@ -109,6 +109,8 @@ out = ancombc2(data = ps_glom,
                prv_cut = 0.1)
 
 statistical_table = out$res
+
+writexl::write_xlsx(statistical_table,'../Results/Tables/Module 14 - ANCOMBC Results.xlsx')
 ```
 
 ```{r Plot}

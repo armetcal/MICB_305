@@ -169,11 +169,12 @@ pathway_errorbar_fixed = function (abundance, daa_results_df, Group, ko_to_kegg 
     error_bar_pivot_longer_tibble_summarised_ordered$name <- factor(error_bar_pivot_longer_tibble_summarised_ordered$name, 
                                                                     levels = rev(log_order))
   }
-  
-  
-  daa_results_filtered_sub_df$pathway_name = sapply(daa_results_filtered_sub_df$pathway_name, function(x) str_split(x,' \\[')[[1]][1] %>% str_trim())
-  if(wrap_label==T){
-    daa_results_filtered_sub_df$pathway_name = stringr::str_wrap(daa_results_filtered_sub_df$pathway_name,wraplength)
+
+  if('pathway_name' %in% names(daa_results_filtered_sub_df)){
+    daa_results_filtered_sub_df$pathway_name = sapply(daa_results_filtered_sub_df$pathway_name, function(x) str_split(x,' \\[')[[1]][1] %>% str_trim())
+    if(wrap_label==T){
+      daa_results_filtered_sub_df$pathway_name = stringr::str_wrap(daa_results_filtered_sub_df$pathway_name,wraplength)
+    }
   }
   
   bar_errorbar <- ggplot2::ggplot(error_bar_pivot_longer_tibble_summarised_ordered, 

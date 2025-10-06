@@ -3,11 +3,11 @@ pathway_errorbar_fixed = function (abundance, daa_results_df, Group, ko_to_kegg 
                             p_values_threshold = 0.05, order = "group", select = NULL, 
                             p_value_bar = TRUE, colors = NULL, x_lab = NULL){
   
-  abundance = ko_filt;
-  daa_results_df = daa_annotated_results_df; order_by_log = T;
-  Group = lpalmvstongue$body.site; wrap_label = T;wraplength=50; fc_cutoff = 0;
-  p_values_threshold = 5e-11; order = "pathway_class"; select = NULL; ko_to_kegg = T; p_value_bar = TRUE;
-  colors = NULL; x_lab = "pathway_name"
+  # abundance = ko_filt;
+  # daa_results_df = daa_annotated_results_df; order_by_log = T;
+  # Group = lpalmvstongue$body.site; wrap_label = T;wraplength=50; fc_cutoff = 0;
+  # p_values_threshold = 5e-11; order = "pathway_class"; select = NULL; ko_to_kegg = T; p_value_bar = TRUE;
+  # colors = NULL; x_lab = "pathway_name"
   
   require(stringr)
   

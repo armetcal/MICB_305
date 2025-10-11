@@ -8,9 +8,10 @@ editor_options:
     wrap: 72
 ---
 
-This R Markdown file produces a publication-worthy Random Forest. The
-code will quantify how well a group of predictor variables (metadata
-and/or microbiome data) can predict an outcome of interest.
+This R Markdown file contains code that can produce a publication-worthy
+Random Forest. The code will quantify how well a group of predictor
+variables (metadata and/or microbiome data) can predict an outcome of
+interest.
 
 The following elements are included:
 
@@ -24,12 +25,13 @@ The following elements are included:
 # Part 1: Load data
 
 The Moving Pictures dataset is not large enough to run Random Forest
-effectively. We will therefore use a dataset that looks at people with
-and without Parkinson's disease.
+effectively - let's see this for ourselves!
 
-**The relevant data have been added to the Datasets folder. If the below
-code does not run, please 'pull' from GitHub to ensure that you have the
-most up-to-date version of the MICB 305 repo.**
+The dataset contains samples from two different people. Can we tell
+which samples are from whom?
+
+**If the below code does not run, please 'pull' from GitHub to ensure
+that you have the most up-to-date version of the MICB 305 repo.**
 
 ```{r Load Libraries and Data}
 # install.packages('randomForest')
@@ -47,21 +49,24 @@ library(phyloseq)
 library(tidyverse)
 
 # Load the dataset and aggregate reads to the Genus level
-ps = readRDS('../Datasets/module16_phyloseq.rds') %>% 
+ps = readRDS('../Datasets/phyloseq_taxonomy.rds') %>% 
   tax_glom('Genus')
 ```
 
 # Part 2: Format data
 
-For Random Forest, we need the following data characteristics:
+For Random Forest, we need the following elements:
 
--   Our outcome variable: here we will use disease (PD) vs. Control.
+-   Our outcome variable: here we will use subject (subject-1 vs
+    subject-2).
 
 -   We should only include taxonomy and variables that we want to use in
     the model.
 
     -   Not usually ideal to test every single variable - chances of
         overfitting is high
+    -   For illustration purposes, we'll just use the top 10 most
+        abundant taxa
 
 -   The variables should be normalized. Continuous data (including
     metadata, if applicable) should all be on roughly the same scale.
@@ -79,8 +84,6 @@ For Random Forest, we need the following data characteristics:
     rows with missing metadata)
 
 ```{r Format dataset for RF}
-# For this tutorial, we will arbitrarily use the top 10 most abundant genera as input for the random forest.
-
 # Calculate average abundance~~~~~~~~~~~~
 avg_abundance = taxa_sums(ps)/sum(taxa_sums(ps)) 
 # Sort high to low
@@ -90,25 +93,26 @@ top_10 = avg_abundance[1:10]
 # Extract taxa names 
 top_10 = names(top_10)
 
-# Normalize microbiome data and select only the top 10 taxa
+# Normalize microbiome data and select only the significant taxa
 # CLR transformation
 ps_clr = ps %>% microbiome::transform('clr') 
 # Filter taxa
 ps_filt = prune_taxa(top_10,ps_clr)
 # Melt the dataset
-df = psmelt(ps_filt)
-# Add Z transformation to each genus individually
+df = psmelt(ps_filt) %>% 
+  # dashes will cause errors
+  mutate(subject = str_replace_all(subject,'-','_'))
+# Add Z transformation to each Genus individually
 # (mean of zero, standard deviation of 1)
 df_transformed = df %>% 
   group_by(Genus) %>% 
   mutate(Abundance = scale(Abundance)) %>% 
   ungroup()
 
-# Final table: should ONLY contain the outcome and explanatory variables, each as their own column.
+# Final table should ONLY contain the outcome and explanatory variables, each as their own column. For now we'll also include the sample id.
 df_pivot = df_transformed %>% 
-  # Start by retaining the sample ID as well
-  select(Sample,Case_status,Genus,Abundance) %>% 
-  # Turn each genus into its own column
+  select(Sample,subject,Genus,Abundance) %>% 
+  # Turn each Genus into its own column
   pivot_wider(names_from = Genus, values_from = Abundance)
 
 # Remove rows with NA values in the metadata
@@ -119,9 +123,9 @@ df_noNA = df_pivot %>% na.omit()
 df_final = df_noNA %>% select(-Sample)
 ```
 
-Now all we have is a data frame with our outcome variable (PD vs Ctrl)
-and our explanatory variables (the top 10 most abundant taxa). All
-numerical variables are normalized.
+Now all we have is a data frame with our outcome variable (gut vs
+tongue) and our explanatory variables (the differentially abundant
+taxa). All numerical variables are normalized.
 
 ```{r}
 df_final
@@ -133,18 +137,18 @@ First, we will separate the data into predictors (taxa) and outcome
 (disease status).
 
 ```{r predictors_and_outcome}
-predictors = df_final %>% select(-Case_status)
+predictors = df_final %>% select(-subject)
 
-# We will transform Case_status into a factor.
+# We will transform subject into a factor.
 # The first level of the factor is automatically used as the reference group.
-# Therefore, we will put the control group first.
-# The results will describe the PD group relative to the reference (control) group.
-outcome = df_final %>% pull(Case_status) %>% 
-  factor(levels = c('Control','PD'))
+# We will put subject_1 first.
+# The results will describe subject 2 relative to the reference (subject_1).
+outcome = df_final %>% pull(subject) %>% 
+  factor(levels = c('subject_1','subject_2'))
 ```
 
 Next, we will set up the k-fold cross-validation. We will set k=5, so
-that our dataset is randomly broken into 5 groups.
+that our dataset is randomly broken into 2 groups.
 
 ```{r k_fold_CV}
 # Randomly subsets the rows into k equal bins.
@@ -173,15 +177,16 @@ less computationally intensive.*
 #       High = overfitting, low = uninformative
 
 # splitrule: affects how decision trees are calculated.
-#            Use gini or extratrees for boolean outcomes (ex. Case_status)
+#            Use gini or extratrees for boolean outcomes (ex. subject)
 #            Use variance for continuous outcomes (ex. age)
 
-# min.node.size: Related to tree complexity. Larger = simpler tree
+# min.node.size: Related to tree complexity. Larger = simpler tree.
+# Often best as a proportional fraction of your sample size.
 
 # These are generic values. Depending on your dataset, you may need to adjust the numeric ranges up or down.
-tune_grid = expand.grid(mtry = c(3, 5, 7, 10), 
+tune_grid = expand.grid(mtry = c(3,6,10), 
                        splitrule = c("gini","extratrees"),
-                       min.node.size = c(10, 15, 20))
+                       min.node.size = c(2,3,4))
 ```
 
 # Part 4: Run RF
@@ -213,7 +218,6 @@ important)
 
 ```{r inspect_output}
 names(pd_model)
-pd_model
 ```
 
 # Part 5: Interpret Results
@@ -277,4 +281,20 @@ pd_model$importance %>%
   theme_classic(base_size=18) +
   theme(axis.text.x = element_text(angle=45, vjust = 1, hjust=1)) +
   ylab('Importance (Gini)') + xlab(NULL)
+```
+
+Another sign that it didn't work very well is that the 'most important'
+feature doesn't seem to correlate strongly with the subject ID.
+
+How could we improve our results?
+
+```{r Visualize}
+temp = ps_clr %>% 
+  subset_taxa(Genus=='g__Neisseria') %>% 
+  psmelt()
+
+temp %>% ggplot(aes(subject,Abundance)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(height=0, width = 0.2) +
+  theme_classic(base_size=18)
 ```

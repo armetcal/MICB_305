@@ -123,9 +123,9 @@ df_noNA = df_pivot %>% na.omit()
 df_final = df_noNA %>% select(-Sample)
 ```
 
-Now all we have is a data frame with our outcome variable (gut vs
-tongue) and our explanatory variables (the differentially abundant
-taxa). All numerical variables are normalized.
+Now all we have is a data frame with our outcome variable (subject) and
+our explanatory variables (the differentially abundant taxa). All
+numerical variables are normalized.
 
 ```{r}
 df_final

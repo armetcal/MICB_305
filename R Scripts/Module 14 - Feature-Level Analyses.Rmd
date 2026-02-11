@@ -43,10 +43,10 @@ site.leftpalm = subset_samples(ps_rare_relab_genus, body.site == 'left palm')
 site.rightpalm = subset_samples(ps_rare_relab_genus, body.site == 'right palm')
 
 # Find core members
-ASVs_gut = core_members(site.gut, detection=0.001, prevalence = 0.8)
-ASVs_tongue = core_members(site.tongue, detection=0.001, prevalence = 0.8)
-ASVs_leftpalm = core_members(site.leftpalm, detection=0.001, prevalence = 0.8)
-ASVs_rightpalm = core_members(site.rightpalm, detection=0.001, prevalence = 0.8)
+ASVs_gut = core_members(site.gut, detection=0.001, prevalence = 0.3)
+ASVs_tongue = core_members(site.tongue, detection=0.001, prevalence = 0.3)
+ASVs_leftpalm = core_members(site.leftpalm, detection=0.001, prevalence = 0.3)
+ASVs_rightpalm = core_members(site.rightpalm, detection=0.001, prevalence = 0.3)
 
 library(ggVennDiagram)
 ggVennDiagram(list(ASVs_gut, ASVs_tongue, ASVs_leftpalm, ASVs_rightpalm),

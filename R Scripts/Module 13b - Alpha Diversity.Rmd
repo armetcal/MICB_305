@@ -202,3 +202,47 @@ ggsave('../Results/Plots/Module 13b - Alpha Diversity.jpeg',
 writexl::write_xlsx(list('Alpha Diversity' = stats),
                     '../Results/Tables/Module 13b - Alpha Diversity.xlsx')
 ```
+
+# Faith's Phylogenetic Diversity
+
+Faith's PD is calculated using different packages, so we'll have to do it separately.
+
+First, we'll install the new required packages.
+```{r}
+# install.packages("picante")
+# install.packages('ape')
+
+library(picante)
+library(ape)
+```
+```{r}
+# Setup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# taxa must be columns instead of rows, this will convert it if needed
+otu = as(otu_table(psrare), "matrix")
+if(taxa_are_rows(psrare)==TRUE) otu <- t(otu)
+
+# Extract your phyloseq object's tree
+tree = phy_tree(psrare)
+
+# check that all the ASV names match between OTU table and tree
+stopifnot(all(colnames(otu) %in% tree$tip.label))
+# reorder tree tips to match ASV order, if needed:
+# Won't hurt to run this on your data if it's unnecessary.
+#    remove any unmatched tips
+tree = drop.tip(tree, setdiff(tree$tip.label, colnames(otu)))
+#    reorder to match
+tree = keep.tip(tree, colnames(otu))
+
+# root the tree if it's unrooted
+if(!is.rooted(tree)) tree <- root(tree, outgroup=tree$tip.label[1], resolve.root=TRUE)
+
+# Calculate Faith's PD for each sample ~~~~~~~~~~~~
+#    1. Convert reads to presence/absence and pull into a matrix
+otu_pa = otu # Make a copy of your data, then...
+otu_pa[otu_pa>0] = 1 #...convert to presence/absence (1 for present, 0 for absent)
+#    2. Calculate metric
+faith = pd(otu_pa, tree, include.root = TRUE) %>% select(-SR)
+
+# Now you can add this to your phyloseq data and plot it like the other metrics!
+```
+

@@ -32,4 +32,4 @@ Notably, you don’t need to normalize the reads. This is because we’re lookin
 
 ## Example publication:
 
-With input from Dr. Laura Sycuro from UCalgary, I published this method in this paper: <https://movementdisorders.onlinelibrary.wiley.com/doi/full/10.1002/mds.29959> You can see the results in "Reads that Map to F. prausnitzii Contribute Significantly to More than Half of all Differentially Abundant Functional Terms". The results were formatted as a table, and I included a ’sensitivity analysis’ that tested cutoffs other than 33% to ensure I wasn’t accidentally biasing my results. Feel free to use that approach if you like.
+Under input from Dr. Laura Sycuro from UCalgary, I published this method in this paper: <https://movementdisorders.onlinelibrary.wiley.com/doi/full/10.1002/mds.29959> You can see the results in "Reads that Map to F. prausnitzii Contribute Significantly to More than Half of all Differentially Abundant Functional Terms". The results were formatted as a table, and I included a ’sensitivity analysis’ that tested cutoffs other than 33% to ensure I wasn’t accidentally biasing my results. Feel free to use that approach if you like.

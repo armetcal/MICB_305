@@ -1,3 +1,2 @@
-# MICB_305
-
-## This is my edit!
+# MICB 305 Scripts
+Without ```.DS_Store```™!

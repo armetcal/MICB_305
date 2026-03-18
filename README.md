@@ -1,2 +1,2 @@
 # MICB 305 Scripts
-Without ```.DS_Store```™!
+Now without ```.DS_Store```™!

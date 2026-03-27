@@ -1,0 +1,158 @@
+---
+title: "Module 14 - Feature-Level Analyses"
+output: html_document
+---
+
+In this R Markdown script, we will load in our taxonomy phyloseq object from the Moving Pictures Tutorial and we will run:
+
+-   Core microbiome
+
+-   Indicator species analysis
+
+-   Differential abundance
+
+The last few modules have showcased a lot of wrangling from Module 10 and elsewhere. From this point onward, the scripts will stripped to their essentials - it will be up to you to apply code from the previous modules if you want to explore or wrangle the data further!
+
+```{r Load data and libraries}
+library(tidyverse)
+library(phyloseq)
+
+# Load object
+ps = readRDS('../Datasets/phyloseq_taxonomy.rds')
+```
+
+# Core microbiome
+
+I am listing the libraries as I go so that you can see where each one is used.
+However, best practice is to load all libraries at the start of the script.
+
+**Consider:** How could you modify the following code so that you only write out each command after transform() once?
+
+```{r}
+library(microbiome) # Same package as the transform() command
+
+# Rarefy if desired and convert to relative abundance, use tax_glom (optional)
+psrare = rarefy_even_depth(ps, sample.size = 2513)
+ps_rare_relab = transform(psrare, 'compositional')
+ps_rare_relab_genus = tax_glom(ps_rare_relab, 'Genus')
+
+# Subset your phyloseq object
+site.gut = subset_samples(ps_rare_relab_genus, body.site == 'gut')
+site.tongue = subset_samples(ps_rare_relab_genus, body.site == 'tongue')
+site.leftpalm = subset_samples(ps_rare_relab_genus, body.site == 'left palm')
+site.rightpalm = subset_samples(ps_rare_relab_genus, body.site == 'right palm')
+
+# Find core members
+ASVs_gut = core_members(site.gut, detection=0.001, prevalence = 0.3)
+ASVs_tongue = core_members(site.tongue, detection=0.001, prevalence = 0.3)
+ASVs_leftpalm = core_members(site.leftpalm, detection=0.001, prevalence = 0.3)
+ASVs_rightpalm = core_members(site.rightpalm, detection=0.001, prevalence = 0.3)
+
+library(ggVennDiagram)
+ggVennDiagram(list(ASVs_gut, ASVs_tongue, ASVs_leftpalm, ASVs_rightpalm),
+      			  set_size = 6,
+              category.names = c('gut','tongue','left palm','right palm') )
+```
+
+# Indicator species analysis
+
+```{r statistics}
+library(indicspecies)
+
+# Aggregate ASVs to higher taxonomic level (optional), 
+# convert phyloseq to relative abundance, 
+# apply abundance filter.
+
+ps_phylum = tax_glom(ps,'Phylum')
+ps_relab = transform(ps_phylum, 'compositional')
+ps_filt = filter_taxa(ps_relab, function(x) mean(x) > 0.001, TRUE)
+otu_table = data.frame(otu_table(ps_filt))
+
+set.seed(421)
+indval = multipatt( t(otu_table), 
+            cluster= ps_filt@sam_data$body.site,
+ 		  control = how(nperm = 999) )
+
+summary(indval, indvalcomp = TRUE)
+
+# Extract into table
+indval_table = as.data.frame(indval$sign)
+```
+
+```{r plot}
+# Plot the two taxa that are indicators for the gut
+phyla_to_plot = indval_table %>% 
+  filter(s.gut==1 & s.tongue==0 & `s.left palm`==0 & `s.right palm`==0 ) %>% 
+  rownames()
+
+df_of_taxa = prune_taxa(phyla_to_plot, ps_filt) %>% psmelt()
+
+df_of_taxa %>% 
+  ggplot(aes(body.site,Abundance,fill=body.site)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(height=0, width=0.2) +
+  facet_wrap(~Phylum, ncol = 4, scales = 'free')
+```
+
+# Differential abundance with Maaslin2
+
+```{r statistics}
+# if(!requireNamespace("BiocManager", quietly = TRUE))
+#     install.packages("BiocManager")
+# BiocManager::install("Maaslin2")
+library(Maaslin2)
+
+# Tax_glom if desired. DON'T rarefy or use a compositional transformation!
+ps_glom = tax_glom(ps, 'Genus')
+
+set.seed(421)
+out = Maaslin2(
+  # Your count table and metadata, extracted into data frames
+  input_data = data.frame(ps_glom@otu_table), 
+  input_metadata = data.frame(ps_glom@sam_data), 
+  # Maaslin2 forces you to specify an output directory, where it automatically saves some outputs. I usually just delete these results because I don't like the formatting.
+  output = 'to_delete', 
+  # List out your explanatory variable(s) - ex. c('var1','var2')
+  fixed_effects = c('body.site'),
+  # Optional: specify a reference group for your categorical variable(s). 
+  # This will be the group that all other groups are compared to. 
+  # Ex. if you have a variable called 'Treatment' with two groups 'Control' and 'Intervention', you would set reference = 'Treatment,Control' to assess Intervention relative to Control.
+  reference = 'body.site,gut',
+  # TSS is Total Sum Scaled, AKA relative abundance.
+  normalization = 'TSS',
+  # Arcsine transformation is recommended for relative abundance data.
+  transform = 'AST',
+  # Set abundance, prevalence, Padj value thresholds
+  min_abundance = 0.001, # 0.001 means 0.1% relative abundance
+  min_prevalence = 0.1, # 0.1 means 10% of samples
+  max_significance = 0.05, # Padj threshold
+  # These plots increase run time and are usually poorly formatted, so you might as well stop them from being generated
+  plot_heatmap = FALSE,
+  plot_scatter = FALSE
+)
+
+statistical_table = out$results
+
+writexl::write_xlsx(statistical_table,'../Results/Tables/Module 14 - Maaslin2 Results.xlsx')
+```
+
+```{r Plot}
+# Filter stats to only include taxa that are differentially abundant between the gut and tongue
+taxa_to_plot = statistical_table %>% 
+  filter(qval < 0.05)
+
+# BASIC PLOT ~~~~~~~~~~~~~
+
+# This will plot the EFFECT SIZE (coefficient) for the significant taxa.
+
+# This is NOT the same thing as log 2 fold changes, which is what you should actually plot for your final project. However, log2FC are not provided by Maaslin2.
+# I am leaving the details of how to calculate log 2 fold changes from the relative abundance data as an exercise for you - you can do it manually (see Assignment 6 answer key) or you can use the fix_lfc() function that I wrote in ggpicrust2_calculate_log2fc.R.
+
+# Don't forget to:
+#    A) plot the genera names instead of the representative ASV names
+#    B) make it publication-ready (ex. sorting the bars from largest to smallest)
+taxa_to_plot %>%
+  ggplot(aes(feature,coef)) +
+  geom_col() +
+  coord_flip()
+```

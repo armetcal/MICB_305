@@ -6,6 +6,12 @@
 #   pathway is more evenly distributed across the community, and there are no 
 #   clear 'drivers' of that pathway.
 
+# Credit: Izaak Yip generated the stratified PICRUSt2 data used here.
+#         Sam Donato drafted the first version of this script. (March 2026)
+
+# Stratified PICRUSt2 reference: https://github-wiki-see.page/m/picrust/picrust2/wiki/PICRUSt2-Tutorial-(v2.5.0)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # READ THE CODE CAREFULLY so you know what's going on! It can be a little confusing.
 
 # Talk with your TA about the best way to show the data. 

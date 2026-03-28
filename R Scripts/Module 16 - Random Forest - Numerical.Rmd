@@ -1,0 +1,267 @@
+---
+title: "Random Forest - NUMERIC VERSION"
+author: "Avril Metcalfe-Roach"
+date: "`r Sys.Date()`"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+This R Markdown file contains code that can produce a publication-worthy
+Random Forest. The code will quantify how well a group of predictor
+variables (metadata and/or microbiome data) can predict a
+[**numeric**]{.underline} outcome of interest.
+
+The following elements are included:
+
+-   Training group and testing group
+-   Hyperparameter tuning
+-   K-fold cross-validation
+-   Feature importance calculation
+-   Receiver Operator Characteristic (ROC) curves
+-   Area-Under-Curve (AUC) values
+
+# Part 1: Load data
+
+The Moving Pictures dataset is not large enough to run Random Forest
+effectively - let's see this for ourselves!
+
+The samples in this dataset were taken at various timepoints. Can we
+predict which timepoint a sample is from?
+
+**If the below code does not run, please 'pull' from GitHub to ensure
+that you have the most up-to-date version of the MICB 305 repo.**
+
+```{r Load Libraries and Data}
+# install.packages('randomForest')
+# install.packages('caret')
+# install.packages('ranger')
+# install.packages('pROC')
+# install.packages('boot')
+library(randomForest)
+library(caret)
+library(ranger)
+library(pROC)
+library(boot)
+library(ggplot2)
+library(phyloseq)
+library(tidyverse)
+
+# Load the dataset and aggregate reads to the Genus level
+ps = readRDS('../Datasets/phyloseq_taxonomy.rds') %>% 
+  tax_glom('Genus')
+```
+
+# Part 2: Format data
+
+For Random Forest, we need the following elements:
+
+-   Our outcome variable: here we will use days.since.experiment.start,
+    which is numeric and continuous (or at least, we're pretending it's
+    continuous).
+
+-   We should only include taxonomy and variables that we want to use in
+    the model.
+
+    -   Not usually ideal to test every single variable - chances of
+        overfitting is high
+    -   For illustration purposes, we'll just use the top 10 most
+        abundant taxa
+
+-   The variables should be normalized. Continuous data (including
+    metadata, if applicable) should all be on roughly the same scale.
+
+    -   Microbiome data will [first]{.underline} be CLR-transformed
+        (Recall Module 12).
+
+        -   Note: this [must]{.underline} be done before filtering the
+            taxa.
+
+    -   These variables will [then]{.underline} be "Z-transformed" (mean
+        of zero, standard deviation of 1).
+
+-   The data can't contain missing values. (You may have to filter out
+    rows with missing metadata)
+
+```{r Format dataset for RF}
+# Calculate average abundance~~~~~~~~~~~~
+avg_abundance = taxa_sums(ps)/sum(taxa_sums(ps)) 
+# Sort high to low
+avg_abundance = sort(avg_abundance, decreasing = T)
+# Take the top 10
+top_10 = avg_abundance[1:10]
+# Extract taxa names 
+top_10 = names(top_10)
+
+# Normalize microbiome data and select only the significant taxa
+# CLR transformation
+ps_clr = ps %>% microbiome::transform('clr') 
+# Filter taxa
+ps_filt = prune_taxa(top_10,ps_clr)
+# Melt the dataset
+df = psmelt(ps_filt)
+# Add Z transformation to each Genus individually
+# (mean of zero, standard deviation of 1)
+df_transformed = df %>% 
+  group_by(Genus) %>% 
+  mutate(Abundance = scale(Abundance)) %>% 
+  ungroup()
+
+# Final table should ONLY contain the outcome and explanatory variables, each as their own column. For now we'll also include the sample id.
+df_pivot = df_transformed %>% 
+  select(Sample,days.since.experiment.start,Genus,Abundance) %>% 
+  # Turn each Genus into its own column
+  pivot_wider(names_from = Genus, values_from = Abundance)
+
+# Remove rows with NA values in the metadata
+df_noNA = df_pivot %>% na.omit()
+
+# Remove the sample ID column - otherwise the code will try to use it as an explanatory variable (just like the microbial genera).
+# We do this after pivoting (try doing it before pivoting, see what happens!)
+df_final = df_noNA %>% select(-Sample)
+```
+
+Now all we have is a data frame with our outcome variable (subject) and
+our explanatory variables (the differentially abundant taxa). All
+numerical variables are normalized.
+
+```{r}
+df_final
+```
+
+# Part 3: Set up RF
+
+First, we will separate the data into predictors (taxa) and outcome
+(disease status).
+
+```{r predictors_and_outcome}
+predictors = df_final %>% select(-days.since.experiment.start)
+
+outcome = df_final %>% pull(days.since.experiment.start)
+```
+
+Next, we will set up the k-fold cross-validation. We will set k=5, so
+that our dataset is randomly broken into 2 groups.
+
+```{r k_fold_CV}
+# Randomly subsets the rows into k equal bins.
+k = 5
+set.seed(421)
+folds = createFolds(outcome, k = k, list = TRUE)
+
+# Each of these folds will take a turn being the test dataset.
+str(folds)
+```
+
+Finally, we will set up our hyperparameter tuning. This is a data frame
+that lists a range of possible values for each random forest parameter.
+This is what you will edit if your model is improperly tuned.
+
+*FYI: In R, only a few parameters can be modified. As of 2025, python is
+the recommended language for running machine learning algorithms, as it
+provides the most flexibility (but that is far beyond the scope of our
+course!).*
+
+*FYI: there are other ways to run hyperparameter tuning, but this way is
+less computationally intensive.*
+
+```{r hyperparameters}
+# mtry: number of variables that will be used per forest. 
+#       High = overfitting, low = uninformative
+
+# splitrule: affects how decision trees are calculated.
+#            Use gini or extratrees for boolean outcomes (ex. subject)
+#            Use variance for continuous outcomes (ex. age)
+
+# min.node.size: Related to tree complexity. Larger = simpler tree.
+# Often best as a proportional fraction of your sample size.
+
+# These are generic values. Depending on your dataset, you may need to adjust the numeric ranges up or down.
+tune_grid = expand.grid(mtry = c(3,6,10), 
+                       splitrule = c("variance"),
+                       min.node.size = c(2,3,4))
+```
+
+# Part 4: Run RF
+
+The random forest code is complicated. I have compiled it into a single
+function called `run_rf`, which can be loaded using the `source`
+command. A helper command will also be loaded.
+
+```{r run_rf}
+source('randomforest_functions_numeric.R')
+
+# This prints one plot automatically, but there are 5 total
+pd_model = run_rf(X = predictors, y = outcome, 
+                  fold_list = folds,
+                  hyper = tune_grid, 
+                  rngseed = 421)
+
+# The results part contains the model, and plots contains 5 plots that give information about the quality and characteristics of the model.
+names(pd_model)
+# Print the model and plots
+pd_model
+
+# You can use the RMSE outputs to compare the training and testing performance of the model. This is similar to the AUC values we looked at for the classification version of random forest. Note that RMSE values are not scaled the same as AUC values. The RMSE values should be as low as possible, but there is no upper limit. The AUC values should be between 0 and 1, with 1 being the best possible value.
+
+# You can also use the test_performance_metrics output, which includes the R squared value for the test dataset, to evaluate the model's performance. R squared values range from 0 to 1, with higher values indicating better performance. An R squared value of 0 means that the model does not explain any of the variance in the outcome variable, while an R squared value of 1 means that the model explains all of the variance in the outcome variable.
+
+# All the plots are created with ggplot, except for the Q-Q plot, and can therefore be modified like a regular ggplot - for example, you can change the title, axis labels, etc to make it publication ready.
+
+# Remember that manuscript figures don't have titles!! They're only included here so you know which is which.
+```
+
+# Summary of output plots
+
+Generated by AI, but checked for accuracy by me (Avril).
+
++---------------------+---------------------+---------------------+
+| Plot Name           | Description         | Key Things to Look  |
+|                     |                     | For                 |
++:====================+:====================+:====================+
+| Feature Importance  | Shows which         | Longer bars = more  |
+| Bar Chart           | variables most      | important features; |
+|                     | reduce model error. | focus on top        |
+|                     |                     | contributors.       |
+|                     |                     |                     |
+|                     |                     | The x-axis          |
+|                     |                     | represents the "%   |
+|                     |                     | Increase in MSE"    |
+|                     |                     | (%IncMSE) when that |
+|                     |                     | feature is randomly |
+|                     |                     | permuted/shuffled.  |
+|                     |                     | This simulates its  |
+|                     |                     | removal from the    |
+|                     |                     | model.              |
++---------------------+---------------------+---------------------+
+| Residuals vs True   | Check for patterns  | You want a random   |
+| Values              | indicating bias or  | scatter around      |
+|                     | heteroskedasticity. | zero. Funnels,      |
+|                     |                     | curves, or          |
+|                     |                     | systematic          |
+|                     |                     | deviations indicate |
+|                     |                     | potential issues.   |
++---------------------+---------------------+---------------------+
+| Predicted vs Actual | Visualize agreement | A good predictive   |
+| Plot                | between predicted   | model will show the |
+|                     | and true values.    | points clustered    |
+|                     |                     | near the diagonal   |
+|                     |                     | line; deviations    |
+|                     |                     | show ov             |
+|                     |                     | e                   |
+|                     |                     | r/under-prediction. |
++---------------------+---------------------+---------------------+
+| QQ Plot of          | Assess normality of | Points should align |
+| Residuals           | residuals.          | closely with red    |
+|                     |                     | line; departures    |
+|                     |                     | indicate            |
+|                     |                     | skewness/heavy      |
+|                     |                     | tails.              |
++---------------------+---------------------+---------------------+
+| Per-Fold RMSE       | Compare training    | Similar heights =   |
+| Comparison          | and testing         | good                |
+|                     | performance per     | generalization.     |
+|                     | fold.               | Large gaps may      |
+|                     |                     | signal overfitting. |
++---------------------+---------------------+---------------------+

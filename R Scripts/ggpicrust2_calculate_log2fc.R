@@ -23,7 +23,7 @@ fix_lfc = function(abundance, metadata, group, reference){
   
   # Ensure that the samples in metadata and abundance match, 
   # and identify the column in metadata that corresponds to the sample names
-  aligned = ggpicrust2:::align_samples(abundance, metadata, verbose = FALSE)
+  aligned = align_samples(abundance, metadata, verbose = FALSE)
   abundance = aligned$abundance
   metadata = aligned$metadata
   snames = aligned$sample_col
@@ -85,4 +85,114 @@ fix_lfc = function(abundance, metadata, group, reference){
   
   # result = log2fc %>% rownames_to_column("feature")
   return(log2fc)
+}
+
+# Helper functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# This is ggpicrust2's align_samples function, which for some reason is inaccessible for some students.
+# Typically you can access it with ggpicrust2:::align_samples. 
+# Two colons (::) lets you access common functions from a package; three colons (:::) allows you to access hidden functions.
+align_samples = function (abundance, metadata, sample_col = NULL, verbose = TRUE) {
+  abundance_samples <- colnames(abundance)
+  if (length(abundance_samples) == 0) {
+    stop("Abundance data has no column names (sample identifiers)")
+  }
+  if (is.null(sample_col)) {
+    sample_col <- find_sample_column(metadata, abundance_samples)
+    if (is.null(sample_col)) {
+      stop("Cannot find matching sample identifiers between abundance and metadata.\n", 
+           "  Abundance samples (first 5): ", paste(head(abundance_samples, 
+                                                         5), collapse = ", "), if (length(abundance_samples) > 
+                                                                                   5) 
+                                                           "..."
+           else "", "\n", "  Metadata columns: ", paste(colnames(metadata), 
+                                                        collapse = ", "), "\n", "  Metadata rownames (first 5): ", 
+           paste(head(rownames(metadata), 5), collapse = ", "), 
+           if (nrow(metadata) > 5) 
+             "..."
+           else "")
+    }
+    if (verbose) {
+      if (sample_col == ".rownames") {
+        message("Using metadata rownames as sample identifiers")
+      }
+      else {
+        message(sprintf("Using column '%s' as sample identifier", 
+                        sample_col))
+      }
+    }
+  }
+  if (sample_col == ".rownames") {
+    metadata <- as.data.frame(metadata)
+    metadata$.sample_id <- rownames(metadata)
+    sample_col <- ".sample_id"
+  }
+  if (!sample_col %in% colnames(metadata)) {
+    stop(sprintf("Sample column '%s' not found in metadata", 
+                 sample_col))
+  }
+  metadata_samples <- as.character(metadata[[sample_col]])
+  common_samples <- intersect(abundance_samples, metadata_samples)
+  if (length(common_samples) == 0) {
+    stop("No common samples found between abundance and metadata.\n", 
+         "  Abundance samples: ", paste(head(abundance_samples, 
+                                             3), collapse = ", "), "...\n", "  Metadata samples: ", 
+         paste(head(metadata_samples, 3), collapse = ", "), 
+         "...")
+  }
+  missing_in_abundance <- setdiff(metadata_samples, abundance_samples)
+  missing_in_metadata <- setdiff(abundance_samples, metadata_samples)
+  if (verbose && (length(missing_in_abundance) > 0 || length(missing_in_metadata) > 
+                  0)) {
+    message(sprintf("Aligned %d samples (dropped %d from metadata, %d from abundance)", 
+                    length(common_samples), length(missing_in_abundance), 
+                    length(missing_in_metadata)))
+  }
+  abundance_aligned <- abundance[, common_samples, drop = FALSE]
+  row_idx <- match(common_samples, metadata_samples)
+  metadata_aligned <- as.data.frame(metadata[row_idx, , drop = FALSE])
+  rownames(metadata_aligned) <- common_samples
+  if (!identical(colnames(abundance_aligned), as.character(metadata_aligned[[sample_col]]))) {
+    stop("Internal error: sample alignment failed")
+  }
+  
+  return(list(abundance = abundance_aligned, 
+              metadata = metadata_aligned, 
+              sample_col = sample_col, 
+              n_samples = length(common_samples)))
+}
+
+# Also a helper function from ggpicrust2
+find_sample_column = function (metadata, abundance_samples) {
+  abundance_samples <- as.character(abundance_samples)
+  standard_names <- c("sample", "Sample", "SAMPLE", "sample_name", 
+                      "Sample_Name", "SampleName", "samplename", "sample_id", 
+                      "Sample_ID", "SampleID", "sampleid", "samples", "Samples")
+  for (col in standard_names) {
+    if (col %in% colnames(metadata)) {
+      if (samples_match(metadata[[col]], abundance_samples)) {
+        return(col)
+      }
+    }
+  }
+  for (col in colnames(metadata)) {
+    if (samples_match(metadata[[col]], abundance_samples)) {
+      return(col)
+    }
+  }
+  if (samples_match(rownames(metadata), abundance_samples)) {
+    return(".rownames")
+  }
+  return(NULL)
+}
+
+# Yet another helper function from ggpicrust2
+samples_match = function (vec1, vec2, threshold = 0.5) {
+  vec1 <- as.character(vec1)
+  vec2 <- as.character(vec2)
+  n_common <- length(intersect(vec1, vec2))
+  min_length <- min(length(vec1), length(vec2))
+  if (min_length == 0) 
+    return(FALSE)
+  n_common/min_length >= threshold
 }

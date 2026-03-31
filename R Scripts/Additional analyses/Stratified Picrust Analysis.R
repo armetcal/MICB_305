@@ -7,20 +7,13 @@
 #   clear 'drivers' of that pathway.
 
 # Credit: Izaak Yip generated the stratified PICRUSt2 data used here.
-#         Sam Donato drafted the first version of this script. (March 2026)
+#         Sam Donato drafted the first version of this script. 
+#         Dr. Avril Metcalfe-Roach completed the second version of this script. 
+#         Sam Donato visualized the taxonomic bar plot. (March 2026)
 
 # Stratified PICRUSt2 reference: https://github-wiki-see.page/m/picrust/picrust2/wiki/PICRUSt2-Tutorial-(v2.5.0)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# READ THE CODE CAREFULLY so you know what's going on! It can be a little confusing.
-
-# Talk with your TA about the best way to show the data. 
-#  A taxonomic bar plot-type figure might work well, where each column is one 
-#    function and the colours show the proportion of reads from each taxon.
-#  Or a table to show how many pathways each key taxa contribute significantly to.
-#    (significance: use some cutoff, such as a taxon has to contribute 33% of 
-#     the reads for a given pathway)
-#  Or many other approaches.
 
 # Load packages 
 library(tidyverse)
@@ -28,6 +21,7 @@ library(readr)
 library(dplyr)
 library(ggplot2)
 library(phyloseq)
+library(readxl)
 
 # Define Pathways of interest
 energy_pathways <- c(
@@ -47,14 +41,29 @@ energy_pathways <- c(
 
 # PART 1 - Getting the data ready
 # * Aggregate to the desired taxonomic level 
-#   CURRENTLY FAMILY LEVEL - WILL NEED TO CHANGE THROUGHOUT IF YOU WANT A DIFFERENT LEVEL!!!
+#   CURRENTLY FAMILY LEVEL
 # * Convert to relative abundance to control for sequencing depth
 
-# Load stratified pathway contribution data (MetaCyc used for this example)
-strat_mc_data_1 <- data.table::fread("Datasets/STRATIFIED_PICRUST_EXAMPLE_path_abun_contrib.tsv")
+# Load Fish Metadata 
+metadata <- read_excel("fish_metadata_2.xlsx")
+
+# Load stratified pathway contribution data (MetaCyc used)
+strat_mc_data_1 <- data.table::fread("path_abun_contrib.tsv")
+
+# Rename column name from #SampleID to sample 
+metadata <- metadata %>%
+  rename(sample = `#SampleID`)
+
+# Left join sample names from metadata to stratified MetaCyc data
+strat_mc_data_1 <- data.table::fread("path_abun_contrib.tsv") %>%
+  left_join(metadata, by = "sample")
+
+# Filter for hindgut samples
+strat_hindgut <- strat_mc_data_1 %>%
+  filter(sample_type == "hindgut")
 
 # Convert reads per sample to relative abundance to control for sequencing depth
-strat_rel = strat_mc_data_1 %>% 
+strat_rel = strat_hindgut %>% 
   group_by(sample) %>%
   mutate(rel_abun = taxon_function_abun/sum(taxon_function_abun)) %>%
   ungroup()
@@ -70,7 +79,7 @@ head(strat_filt)
 
 # Aggregate reads to the Family level
 # Load tax data, keep just the Family info
-tax <- read_tsv("Datasets/STRATIFIED_PICRUST_EXAMPLE_taxonomy.tsv") %>%  # Load Taxonomy Data Names
+tax <- read_tsv("data_taxonomy.tsv") %>%  # Load Taxonomy Data Names
   separate(`Taxon`, into = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus"), sep = ";") %>%
   select(taxon = `Feature ID`, Family) %>% 
   mutate(Family = ifelse(is.na(Family),taxon, Family)) # If no Family name, keep the feature ID for now
@@ -122,3 +131,48 @@ head(strat_prop %>% arrange(-prop_tax_reads_per_function))
 # Histogram of the proportions, just to see the distributions. 
 # No clear high-contributing taxa - a taxonomic bar plot-style figure might work best.
 hist(log10(strat_prop$prop_tax_reads_per_function),breaks=50)
+
+# Part 4 - Visualizing taxonomic bar plot 
+
+# Create the 5% cutoff
+threshold <- 0.05  
+
+# Group the <5% reads by function and family, sum all the rare taxa 
+strat_prop_grouped <- strat_prop %>%
+  group_by(`function`) %>%
+  mutate(Family = ifelse(prop_tax_reads_per_function < threshold,
+                         "<5% of reads",
+                         Family)) %>%
+  ungroup() %>%
+  group_by(`function`, Family) %>%
+  summarize(prop_tax_reads_per_function = sum(prop_tax_reads_per_function),
+            .groups = "drop")
+
+# Plot without a legend for visibility
+plot_avg <- strat_prop_grouped %>%
+  mutate(`function` = str_to_title(`function`)) %>%
+  ggplot(aes(`function`, prop_tax_reads_per_function, fill = Family)) +
+  geom_col(position = "stack") +
+  facet_wrap(~`function`, ncol = 4, scales = "free") +
+  theme_classic(base_size = 18) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none") +
+  xlab(NULL)
+
+plot_avg
+
+# Plot with a legend 
+plot_avg <- strat_prop_grouped %>%
+  mutate(`function` = str_to_title(`function`)) %>%
+  ggplot(aes(`function`, prop_tax_reads_per_function, fill = Family)) +
+  labs(y = "Proportion of taxa reads per function") +
+  geom_col(position = "stack") +
+  facet_wrap(~`function`, ncol = 4, scales = "free") +
+  theme_classic(base_size = 18) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.title = element_blank(),
+        legend.key.size = unit(0.6, "cm"),
+        legend.text = element_text(size = 10)) +
+  xlab(NULL)
+
+plot_avg

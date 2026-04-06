@@ -7,7 +7,9 @@
 #   clear 'drivers' of that pathway.
 
 # Credit: Izaak Yip generated the stratified PICRUSt2 data used here.
-#         Sam Donato drafted the first version of this script. (March 2026)
+#         Sam Donato drafted the first version of this script. 
+#         Dr. Avril Metcalfe-Roach completed the second version of this script. 
+#         Sam Donato visualized the taxonomic bar plot. (March 2026)
 
 # Stratified PICRUSt2 reference: https://github-wiki-see.page/m/picrust/picrust2/wiki/PICRUSt2-Tutorial-(v2.5.0)
 
@@ -122,3 +124,49 @@ head(strat_prop %>% arrange(-prop_tax_reads_per_function))
 # Histogram of the proportions, just to see the distributions. 
 # No clear high-contributing taxa - a taxonomic bar plot-style figure might work best.
 hist(log10(strat_prop$prop_tax_reads_per_function),breaks=50)
+
+# Part 4 - Visualizing taxonomic bar plot 
+
+# Create the 5% cutoff
+threshold <- 0.05  
+
+# Group the <5% reads by function and family, sum all the rare taxa 
+strat_prop_grouped <- strat_prop %>%
+  group_by(`function`) %>%
+  mutate(Family = ifelse(prop_tax_reads_per_function < threshold,
+                         "<5% of reads",
+                         Family)) %>%
+  ungroup() %>%
+  group_by(`function`, Family) %>%
+  summarize(prop_tax_reads_per_function = sum(prop_tax_reads_per_function),
+            .groups = "drop")
+
+# Plot without a legend for visibility
+plot_avg <- strat_prop_grouped %>%
+  mutate(`function` = str_to_title(`function`)) %>%
+  ggplot(aes(`function`, prop_tax_reads_per_function, fill = Family)) +
+  labs(y = "Proportion of Family taxa reads per function") +
+  geom_col(position = "stack", color = NA) +
+  theme_classic(base_size = 22) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+       legend.position = "none")+
+  xlab(NULL)
+
+plot_avg
+
+# Plot with a legend 
+plot_avg <- strat_prop_grouped %>%
+  mutate(`function` = str_to_title(`function`)) %>%
+  ggplot(aes(`function`, prop_tax_reads_per_function, fill = Family)) +
+  labs(y = "Proportion of Family taxa reads per function") +
+  geom_col(position = "stack", color = NA) +
+  theme_classic(base_size = 22) +
+  theme(strip.text = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.title = element_blank(),
+        legend.key.size = unit(1, "cm"),
+        legend.text = element_text(size = 16)) +
+  xlab(NULL)
+
+plot_avg
+ggsave("plot_avg.jpg", plot_avg)

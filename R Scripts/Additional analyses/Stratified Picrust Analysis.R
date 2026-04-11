@@ -127,7 +127,8 @@ hist(log10(strat_prop$prop_tax_reads_per_function),breaks=50)
 
 # Part 4 - Visualizing taxonomic bar plot 
 
-# Create the 5% cutoff
+# Create the 5% cutoff - any taxa that contribute less than 5% of the reads to a 
+#  given pathway will be grouped together as 'other' for visualization purposes.
 threshold <- 0.05  
 
 # Group the <5% reads by function and family, sum all the rare taxa 
@@ -169,4 +170,6 @@ plot_avg <- strat_prop_grouped %>%
   xlab(NULL)
 
 plot_avg
-ggsave("plot_avg.jpg", plot_avg)
+
+# Save if you want
+# ggsave("plot_avg.jpg", plot_avg)

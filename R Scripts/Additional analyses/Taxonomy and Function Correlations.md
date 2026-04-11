@@ -1,5 +1,7 @@
 # Determining which taxa correspond to which functions
 
+## \*\*See also: Stratified Picrust Analysis.R\*\*
+
 When running picrust2, the software takes each taxon, finds the closest published genome, and assumes that your taxon has the same genes.
 
 This means that each function's counts can be broken down into the individual taxa that make up the function - no need to statistically correlate taxa and functions together!

@@ -131,7 +131,7 @@ colSums(ko_relab) # Should be all 1
 stats = ko_relab %>% t() %>%  # switch rows and columns
   as.data.frame() %>% # Lets us use select()
   select(all_of(sig_features)) %>% 
-  cor(method = 'pearson') #Pearson tests between every feature pair
+  cor(method = 'spearman') #Spearman tests between every feature pair
 
 # Define the color palette
 color_palette <- colorRampPalette(c("blue", "white", "red"))(40)

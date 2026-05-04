@@ -36,7 +36,7 @@ qiime tools export \
    --input-path YOUR_REP_SEQS_FILE.qza \ # Refer back to the QIIME2 modules for help generating this file
    --output-path strat_picrust
 
-# Switch from the Qiime2 to the PICRUSt2 environment
+# Switch from the QIIME2 to the PICRUSt2 environment
 
 conda deactivate
 conda activate picrust2
